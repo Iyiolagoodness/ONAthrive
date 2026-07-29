@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Moon, Sun, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Moon, Sun, Menu, X, LayoutDashboard } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@/lib/theme";
+import { supabase } from "@/integrations/supabase/client";
+
 
 const navLinks = [
   { label: "Home", to: "/" },
