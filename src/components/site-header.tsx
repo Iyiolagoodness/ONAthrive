@@ -62,18 +62,31 @@ export function SiteHeader() {
           >
             {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <a
-            href="#"
-            className="hidden h-9 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:inline-flex"
-          >
-            Login
-          </a>
-          <a
-            href="#"
-            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
-          >
-            Register
-          </a>
+          {signedIn ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/auth"
+                className="hidden h-9 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:inline-flex"
+              >
+                Login
+              </Link>
+              <Link
+                to="/auth"
+                className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
+              >
+                Register
+              </Link>
+            </>
+          )}
+
           <button
             aria-label="Menu"
             onClick={() => setOpen((o) => !o)}
