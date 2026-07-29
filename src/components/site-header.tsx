@@ -18,6 +18,14 @@ const navLinks = [
 export function SiteHeader() {
   const { theme, mounted, toggle } = useTheme();
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session));
+    return () => data.subscription.unsubscribe();
+  }, []);
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
