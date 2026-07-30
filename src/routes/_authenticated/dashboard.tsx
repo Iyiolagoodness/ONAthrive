@@ -38,6 +38,8 @@ function Dashboard() {
   const [email, setEmail] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
   const [shipments, setShipments] = useState<ShipmentRow[]>([]);
+  const [jobs, setJobs] = useState<ShipmentRow[]>([]);
+  const [myBidStats, setMyBidStats] = useState({ total: 0, pending: 0, won: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function Dashboard() {
       const uid = userData.user.id;
       setEmail(userData.user.email ?? "");
 
-      const [{ data: prof }, { data: wallet }, { data: ships }] = await Promise.all([
+      const [{ data: prof }, { data: wallet }, { data: ships }, { data: myJobs }, { data: myBids }] = await Promise.all([
         supabase.from("profiles").select("full_name, phone, user_type, verified").eq("id", uid).maybeSingle(),
         supabase.from("wallets").select("balance_ngn").eq("user_id", uid).maybeSingle(),
         supabase
@@ -56,10 +58,24 @@ function Dashboard() {
           .eq("customer_id", uid)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("shipments")
+          .select("id, title, status, pickup_state, dropoff_state, budget_ngn, created_at")
+          .eq("assigned_transporter_id", uid)
+          .order("created_at", { ascending: false })
+          .limit(20),
+        supabase.from("bids").select("id, status").eq("transporter_id", uid),
       ]);
 
       if (prof) setProfile(prof as Profile);
       if (wallet) setWalletBalance(Number(wallet.balance_ngn));
+      setJobs((myJobs ?? []) as ShipmentRow[]);
+      const bidList = (myBids ?? []) as { id: string; status: string }[];
+      setMyBidStats({
+        total: bidList.length,
+        pending: bidList.filter((b) => b.status === "pending").length,
+        won: bidList.filter((b) => b.status === "accepted").length,
+      });
 
       const rows = (ships ?? []) as ShipmentRow[];
       if (rows.length) {
@@ -73,6 +89,7 @@ function Dashboard() {
       setLoading(false);
     })();
   }, []);
+
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -116,15 +133,34 @@ function Dashboard() {
               {isTransporter ? "Browse the marketplace and manage active jobs." : "Post a shipment and get bids from verified transporters."}
             </p>
           </div>
-          {!isTransporter && (
-            <Link
-              to="/shipments/new"
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              <Plus className="h-4 w-4" /> Post shipment
-            </Link>
-          )}
+          <div className="flex flex-wrap gap-3">
+            {isTransporter && (
+              <>
+                <Link
+                  to="/marketplace"
+                  className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                >
+                  <Package className="h-4 w-4" /> Browse marketplace
+                </Link>
+                <Link
+                  to="/jobs"
+                  className="inline-flex h-11 items-center gap-2 rounded-md border border-border px-5 text-sm font-semibold hover:bg-muted"
+                >
+                  <Truck className="h-4 w-4" /> My jobs
+                </Link>
+              </>
+            )}
+            {!isTransporter && (
+              <Link
+                to="/shipments/new"
+                className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                <Plus className="h-4 w-4" /> Post shipment
+              </Link>
+            )}
+          </div>
         </div>
+
 
         {loading ? (
           <div className="text-sm text-muted-foreground">Loading…</div>
@@ -132,17 +168,76 @@ function Dashboard() {
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard icon={<Wallet className="h-5 w-5" />} label="Wallet" value={`₦${walletBalance.toLocaleString()}`} />
-              <StatCard icon={<Package className="h-5 w-5" />} label="Active shipments" value={String(activeCount)} />
-              <StatCard icon={<Truck className="h-5 w-5" />} label="Total bids received" value={String(totalBids)} />
-              <StatCard icon={<Package className="h-5 w-5" />} label="All shipments" value={String(shipments.length)} />
+              {isTransporter ? (
+                <>
+                  <StatCard icon={<Truck className="h-5 w-5" />} label="Active jobs" value={String(jobs.filter((j) => ["assigned", "in_transit"].includes(j.status)).length)} />
+                  <StatCard icon={<Package className="h-5 w-5" />} label="Bids placed" value={String(myBidStats.total)} />
+                  <StatCard icon={<Package className="h-5 w-5" />} label="Bids won" value={String(myBidStats.won)} />
+                </>
+              ) : (
+                <>
+                  <StatCard icon={<Package className="h-5 w-5" />} label="Active shipments" value={String(activeCount)} />
+                  <StatCard icon={<Truck className="h-5 w-5" />} label="Total bids received" value={String(totalBids)} />
+                  <StatCard icon={<Package className="h-5 w-5" />} label="All shipments" value={String(shipments.length)} />
+                </>
+              )}
             </div>
 
+            {isTransporter && (
+              <section className="mt-10">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="font-display text-xl font-semibold">Your jobs</h2>
+                  <Link to="/jobs" className="text-sm font-medium text-primary hover:underline">View all</Link>
+                </div>
+                {jobs.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+                    <Truck className="mx-auto h-10 w-10 text-muted-foreground" />
+                    <h3 className="mt-3 font-display text-lg font-semibold">No jobs yet</h3>
+                    <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                      Browse open shipments in the marketplace and place your first bid.
+                    </p>
+                    <Link
+                      to="/marketplace"
+                      className="mt-5 inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                    >
+                      <Package className="h-4 w-4" /> Browse marketplace
+                    </Link>
+                  </div>
+                ) : (
+                  <ul className="grid gap-3">
+                    {jobs.map((j) => (
+                      <li key={j.id}>
+                        <Link
+                          to="/shipments/$id"
+                          params={{ id: j.id }}
+                          className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5 transition hover:border-primary/60 hover:shadow-sm"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="truncate font-display text-base font-semibold">{j.title}</p>
+                              <StatusPill status={j.status} />
+                            </div>
+                            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                              <MapPin className="h-3.5 w-3.5" /> {j.pickup_state} → {j.dropoff_state}
+                            </p>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            )}
+
+            {(!isTransporter || shipments.length > 0) && (
             <section className="mt-10">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-display text-xl font-semibold">Your shipments</h2>
               </div>
 
               {shipments.length === 0 ? (
+
                 <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
                   <Package className="mx-auto h-10 w-10 text-muted-foreground" />
                   <h3 className="mt-3 font-display text-lg font-semibold">No shipments yet</h3>
@@ -187,6 +282,8 @@ function Dashboard() {
                 </ul>
               )}
             </section>
+            )}
+
           </>
         )}
       </main>
