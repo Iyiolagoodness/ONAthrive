@@ -38,6 +38,8 @@ function Dashboard() {
   const [email, setEmail] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
   const [shipments, setShipments] = useState<ShipmentRow[]>([]);
+  const [jobs, setJobs] = useState<ShipmentRow[]>([]);
+  const [myBidStats, setMyBidStats] = useState({ total: 0, pending: 0, won: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function Dashboard() {
       const uid = userData.user.id;
       setEmail(userData.user.email ?? "");
 
-      const [{ data: prof }, { data: wallet }, { data: ships }] = await Promise.all([
+      const [{ data: prof }, { data: wallet }, { data: ships }, { data: myJobs }, { data: myBids }] = await Promise.all([
         supabase.from("profiles").select("full_name, phone, user_type, verified").eq("id", uid).maybeSingle(),
         supabase.from("wallets").select("balance_ngn").eq("user_id", uid).maybeSingle(),
         supabase
@@ -56,10 +58,24 @@ function Dashboard() {
           .eq("customer_id", uid)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("shipments")
+          .select("id, title, status, pickup_state, dropoff_state, budget_ngn, created_at")
+          .eq("assigned_transporter_id", uid)
+          .order("created_at", { ascending: false })
+          .limit(20),
+        supabase.from("bids").select("id, status").eq("transporter_id", uid),
       ]);
 
       if (prof) setProfile(prof as Profile);
       if (wallet) setWalletBalance(Number(wallet.balance_ngn));
+      setJobs((myJobs ?? []) as ShipmentRow[]);
+      const bidList = (myBids ?? []) as { id: string; status: string }[];
+      setMyBidStats({
+        total: bidList.length,
+        pending: bidList.filter((b) => b.status === "pending").length,
+        won: bidList.filter((b) => b.status === "accepted").length,
+      });
 
       const rows = (ships ?? []) as ShipmentRow[];
       if (rows.length) {
@@ -73,6 +89,7 @@ function Dashboard() {
       setLoading(false);
     })();
   }, []);
+
 
   async function handleSignOut() {
     await supabase.auth.signOut();
