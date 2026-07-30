@@ -63,14 +63,18 @@ export function SiteHeader() {
             {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           {signedIn ? (
-            <Link
-              to="/dashboard"
-              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </Link>
+            <>
+              <NotificationBell />
+              <Link
+                to="/dashboard"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </Link>
+            </>
           ) : (
+
             <>
               <Link
                 to="/auth"
