@@ -116,15 +116,34 @@ function Dashboard() {
               {isTransporter ? "Browse the marketplace and manage active jobs." : "Post a shipment and get bids from verified transporters."}
             </p>
           </div>
-          {!isTransporter && (
-            <Link
-              to="/shipments/new"
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              <Plus className="h-4 w-4" /> Post shipment
-            </Link>
-          )}
+          <div className="flex flex-wrap gap-3">
+            {isTransporter && (
+              <>
+                <Link
+                  to="/marketplace"
+                  className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                >
+                  <Package className="h-4 w-4" /> Browse marketplace
+                </Link>
+                <Link
+                  to="/jobs"
+                  className="inline-flex h-11 items-center gap-2 rounded-md border border-border px-5 text-sm font-semibold hover:bg-muted"
+                >
+                  <Truck className="h-4 w-4" /> My jobs
+                </Link>
+              </>
+            )}
+            {!isTransporter && (
+              <Link
+                to="/shipments/new"
+                className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                <Plus className="h-4 w-4" /> Post shipment
+              </Link>
+            )}
+          </div>
         </div>
+
 
         {loading ? (
           <div className="text-sm text-muted-foreground">Loading…</div>
