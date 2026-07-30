@@ -3,6 +3,8 @@ import { Moon, Sun, Menu, X, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/lib/theme";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationBell } from "@/components/notification-bell";
+
 
 
 const navLinks = [
