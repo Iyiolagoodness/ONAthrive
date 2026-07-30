@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/jobs")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Jobs;
+  component: Jobs,
 });
 
 type Job = {
