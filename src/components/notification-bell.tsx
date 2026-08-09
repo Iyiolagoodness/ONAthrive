@@ -199,14 +199,13 @@ export function NotificationBell() {
         <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-background shadow-lg">
           <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
             <span className="text-sm font-semibold">Notifications</span>
-            {unread > 0 && (
-              <button
-                onClick={markAllRead}
-                className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-              >
-                <CheckCheck className="h-3.5 w-3.5" /> Mark all read
-              </button>
-            )}
+            <button
+              onClick={markAllRead}
+              disabled={unread === 0}
+              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+            >
+              <CheckCheck className="h-3.5 w-3.5" /> Mark all as read
+            </button>
           </div>
           <div ref={listRef} className="max-h-96 overflow-y-auto">
             {items.length === 0 && !loading ? (
@@ -238,6 +237,15 @@ export function NotificationBell() {
               <p className="py-3 text-center text-[11px] text-muted-foreground">That's everything.</p>
             )}
           </div>
+          <button
+            onClick={() => {
+              setOpen(false);
+              navigate({ to: "/notifications" });
+            }}
+            className="block w-full border-t border-border px-4 py-2.5 text-center text-xs font-semibold text-primary transition-colors hover:bg-muted"
+          >
+            View all notifications
+          </button>
         </div>
       )}
     </div>
