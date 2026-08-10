@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 async function requireAdmin(context: { supabase: any; userId: string }) {
   const { data: roles } = await context.supabase
