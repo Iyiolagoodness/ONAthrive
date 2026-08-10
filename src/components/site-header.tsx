@@ -21,12 +21,30 @@ export function SiteHeader() {
   const { theme, mounted, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      if (data.session?.user) checkAdmin(data.session.user.id);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+      if (session?.user) checkAdmin(session.user.id);
+      else setIsAdmin(false);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  async function checkAdmin(userId: string) {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .limit(1);
+    setIsAdmin(!!data && data.length > 0);
+  }
 
 
   return (
