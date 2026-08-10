@@ -85,6 +85,15 @@ export function SiteHeader() {
           {signedIn ? (
             <>
               <NotificationBell />
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  className="hidden h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:inline-flex"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Link>
+              )}
               <Link
                 to="/dashboard"
                 className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"
