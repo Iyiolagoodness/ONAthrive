@@ -134,7 +134,7 @@ export const listAdminShipments = createServerFn({ method: "POST" })
       .range(from, to);
 
     if (data.status) {
-      query = query.eq("status", data.status);
+      query = query.eq("status", data.status as Database["public"]["Enums"]["shipment_status"]);
     }
 
     const { data: rows, error, count } = await query;
