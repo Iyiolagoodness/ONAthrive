@@ -151,19 +151,25 @@ export const listAdminShipments = createServerFn({ method: "POST" })
 
 export const updateShipmentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { shipmentId: string; status: string; note?: string }) => input)
+  .inputValidator(
+    (input: {
+      shipmentId: string;
+      status: Database["public"]["Enums"]["shipment_status"];
+      note?: string;
+    }) => input
+  )
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin.from("shipments").update({ status: data.status as any }).eq("id", data.shipmentId);
+    const { error } = await supabaseAdmin.from("shipments").update({ status: data.status }).eq("id", data.shipmentId);
     if (error) throw new Error(error.message);
 
     if (data.note) {
       await supabaseAdmin.from("tracking_events").insert({
         shipment_id: data.shipmentId,
         actor_id: context.userId,
-        status: data.status as any,
+        status: data.status,
         note: data.note,
       });
     }
