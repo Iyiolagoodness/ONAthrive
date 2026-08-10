@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Moon, Sun, Menu, X, LayoutDashboard } from "lucide-react";
+import { Moon, Sun, Menu, X, LayoutDashboard, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/lib/theme";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,12 +21,30 @@ export function SiteHeader() {
   const { theme, mounted, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      if (data.session?.user) checkAdmin(data.session.user.id);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+      if (session?.user) checkAdmin(session.user.id);
+      else setIsAdmin(false);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  async function checkAdmin(userId: string) {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .limit(1);
+    setIsAdmin(!!data && data.length > 0);
+  }
 
 
   return (
@@ -67,6 +85,15 @@ export function SiteHeader() {
           {signedIn ? (
             <>
               <NotificationBell />
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  className="hidden h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:inline-flex"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Link>
+              )}
               <Link
                 to="/dashboard"
                 className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] transition-transform hover:scale-[1.03]"

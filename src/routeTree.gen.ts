@@ -16,8 +16,14 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
 import { Route as AuthenticatedShipmentsNewRouteImport } from './routes/_authenticated/shipments.new'
 import { Route as AuthenticatedShipmentsIdRouteImport } from './routes/_authenticated/shipments.$id'
+import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
+import { Route as AuthenticatedAdminAdminShipmentsRouteImport } from './routes/_authenticated/_admin/admin.shipments'
+import { Route as AuthenticatedAdminAdminDisputesRouteImport } from './routes/_authenticated/_admin/admin.disputes'
+import { Route as AuthenticatedAdminAdminDashboardRouteImport } from './routes/_authenticated/_admin/admin.dashboard'
+import { Route as AuthenticatedAdminAdminBidsRouteImport } from './routes/_authenticated/_admin/admin.bids'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -55,6 +61,10 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedShipmentsNewRoute =
   AuthenticatedShipmentsNewRouteImport.update({
     id: '/shipments/new',
@@ -67,6 +77,36 @@ const AuthenticatedShipmentsIdRoute =
     path: '/shipments/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminAdminUsersRoute =
+  AuthenticatedAdminAdminUsersRouteImport.update({
+    id: '/admin/users',
+    path: '/admin/users',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminShipmentsRoute =
+  AuthenticatedAdminAdminShipmentsRouteImport.update({
+    id: '/admin/shipments',
+    path: '/admin/shipments',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminDisputesRoute =
+  AuthenticatedAdminAdminDisputesRouteImport.update({
+    id: '/admin/disputes',
+    path: '/admin/disputes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminDashboardRoute =
+  AuthenticatedAdminAdminDashboardRouteImport.update({
+    id: '/admin/dashboard',
+    path: '/admin/dashboard',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminBidsRoute =
+  AuthenticatedAdminAdminBidsRouteImport.update({
+    id: '/admin/bids',
+    path: '/admin/bids',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,6 +117,11 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
   '/shipments/new': typeof AuthenticatedShipmentsNewRoute
+  '/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
+  '/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
+  '/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
+  '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -87,18 +132,29 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
   '/shipments/new': typeof AuthenticatedShipmentsNewRoute
+  '/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
+  '/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
+  '/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
+  '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
   '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/shipments/$id': typeof AuthenticatedShipmentsIdRoute
   '/_authenticated/shipments/new': typeof AuthenticatedShipmentsNewRoute
+  '/_authenticated/_admin/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
+  '/_authenticated/_admin/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
+  '/_authenticated/_admin/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/_authenticated/_admin/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
+  '/_authenticated/_admin/admin/users': typeof AuthenticatedAdminAdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +167,11 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/shipments/$id'
     | '/shipments/new'
+    | '/admin/bids'
+    | '/admin/dashboard'
+    | '/admin/disputes'
+    | '/admin/shipments'
+    | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,17 +182,28 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/shipments/$id'
     | '/shipments/new'
+    | '/admin/bids'
+    | '/admin/dashboard'
+    | '/admin/disputes'
+    | '/admin/shipments'
+    | '/admin/users'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/_admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
     | '/_authenticated/marketplace'
     | '/_authenticated/notifications'
     | '/_authenticated/shipments/$id'
     | '/_authenticated/shipments/new'
+    | '/_authenticated/_admin/admin/bids'
+    | '/_authenticated/_admin/admin/dashboard'
+    | '/_authenticated/_admin/admin/disputes'
+    | '/_authenticated/_admin/admin/shipments'
+    | '/_authenticated/_admin/admin/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_admin': {
+      id: '/_authenticated/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/shipments/new': {
       id: '/_authenticated/shipments/new'
       path: '/shipments/new'
@@ -205,10 +284,70 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShipmentsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_admin/admin/users': {
+      id: '/_authenticated/_admin/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/shipments': {
+      id: '/_authenticated/_admin/admin/shipments'
+      path: '/admin/shipments'
+      fullPath: '/admin/shipments'
+      preLoaderRoute: typeof AuthenticatedAdminAdminShipmentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/disputes': {
+      id: '/_authenticated/_admin/admin/disputes'
+      path: '/admin/disputes'
+      fullPath: '/admin/disputes'
+      preLoaderRoute: typeof AuthenticatedAdminAdminDisputesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/dashboard': {
+      id: '/_authenticated/_admin/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/bids': {
+      id: '/_authenticated/_admin/admin/bids'
+      path: '/admin/bids'
+      fullPath: '/admin/bids'
+      preLoaderRoute: typeof AuthenticatedAdminAdminBidsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAdminBidsRoute: typeof AuthenticatedAdminAdminBidsRoute
+  AuthenticatedAdminAdminDashboardRoute: typeof AuthenticatedAdminAdminDashboardRoute
+  AuthenticatedAdminAdminDisputesRoute: typeof AuthenticatedAdminAdminDisputesRoute
+  AuthenticatedAdminAdminShipmentsRoute: typeof AuthenticatedAdminAdminShipmentsRoute
+  AuthenticatedAdminAdminUsersRoute: typeof AuthenticatedAdminAdminUsersRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAdminBidsRoute: AuthenticatedAdminAdminBidsRoute,
+    AuthenticatedAdminAdminDashboardRoute:
+      AuthenticatedAdminAdminDashboardRoute,
+    AuthenticatedAdminAdminDisputesRoute: AuthenticatedAdminAdminDisputesRoute,
+    AuthenticatedAdminAdminShipmentsRoute:
+      AuthenticatedAdminAdminShipmentsRoute,
+    AuthenticatedAdminAdminUsersRoute: AuthenticatedAdminAdminUsersRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
   AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
@@ -218,6 +357,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
   AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
