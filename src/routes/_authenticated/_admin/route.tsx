@@ -4,22 +4,22 @@ import { LayoutDashboard, Users, Package, Gavel, AlertTriangle } from "lucide-re
 
 export const Route = createFileRoute("/_authenticated/_admin")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+  beforeLoad: async ({ context }: { context: { user?: { id: string } } }) => {
+    const user = context.user;
+    if (!user?.id) throw redirect({ to: "/auth" });
 
-    const { data: roles } = await supabase
+    const { data: roles, error } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .eq("role", "admin")
       .limit(1);
 
-    if (!roles || roles.length === 0) {
+    if (error || !roles || roles.length === 0) {
       throw redirect({ to: "/dashboard" });
     }
 
-    return { user: data.user };
+    return { user };
   },
   component: AdminLayout,
 });
