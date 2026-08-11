@@ -43,6 +43,27 @@ const nav = [
 
 function AdminLayout() {
   const { pathname } = useLocation();
+  const ctx = Route.useRouteContext() as any;
+
+  if (!ctx.isAdmin) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <h1 className="font-display text-2xl font-bold">Admin gate debug</h1>
+        <pre className="mt-4 rounded-lg border border-border bg-card p-4 text-sm whitespace-pre-wrap">
+          {JSON.stringify({
+            userId: ctx.userId,
+            source: ctx.source,
+            roles: ctx.roles,
+            rolesError: ctx.rolesError,
+            isAdmin: ctx.isAdmin,
+            email: ctx.user?.email,
+          }, null, 2)}
+        </pre>
+        <Link to="/dashboard" className="mt-4 inline-block text-primary hover:underline">Go to dashboard</Link>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-7xl flex-col lg:flex-row">
