@@ -6,16 +6,19 @@ export const Route = createFileRoute("/_authenticated/_admin")({
   ssr: false,
   beforeLoad: async ({ context }: { context: { user?: { id: string } | null } }) => {
     let userId = context.user?.id;
+    let source = "context";
 
     if (!userId) {
       const { data: sessionData } = await supabase.auth.getSession();
       userId = sessionData.session?.user?.id;
+      source = "session";
     }
 
     if (!userId) {
       const { data: userData, error } = await supabase.auth.getUser();
       if (error || !userData.user) throw redirect({ to: "/auth" });
       userId = userData.user.id;
+      source = "getUser";
     }
 
     const { data: roles, error: rolesError } = await supabase
@@ -25,11 +28,7 @@ export const Route = createFileRoute("/_authenticated/_admin")({
       .eq("role", "admin")
       .limit(1);
 
-    if (rolesError || !roles || roles.length === 0) {
-      throw redirect({ to: "/dashboard" });
-    }
-
-    return { userId };
+    return { userId, source, roles, rolesError: rolesError?.message ?? null, isAdmin: !!(roles && roles.length > 0) };
   },
   component: AdminLayout,
 });
