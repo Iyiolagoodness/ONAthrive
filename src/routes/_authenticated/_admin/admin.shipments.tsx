@@ -67,7 +67,15 @@ function AdminShipments() {
     }
   };
 
-  const changeStatus = async (shipmentId: string, newStatus: any) => {
+  const changeStatus = async (shipment: any, newStatus: any) => {
+    const shipmentId = shipment.id;
+    const invalid = transitionError(shipment.status as ShipmentStatus, newStatus as ShipmentStatus, {
+      hasTransporter: Boolean(shipment.assigned_transporter_id),
+    });
+    if (invalid) {
+      toast.error(invalid);
+      return;
+    }
     setBusyId(shipmentId);
     try {
       await mutateStatus({ data: { shipmentId, status: newStatus, note: `Admin set status to ${newStatus}` } });
