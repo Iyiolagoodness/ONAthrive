@@ -109,8 +109,26 @@ export const updateUserRole = createServerFn({ method: "POST" })
         .eq("role", data.role);
       if (error) throw new Error(error.message);
     }
+
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", data.userId)
+      .maybeSingle();
+
+    await supabaseAdmin.from("admin_audit_logs").insert({
+      admin_id: context.userId,
+      action: data.action === "add" ? "role_granted" : "role_revoked",
+      target_user_id: data.userId,
+      summary: `${data.action === "add" ? "Granted" : "Revoked"} "${data.role}" role ${
+        data.action === "add" ? "to" : "from"
+      } ${prof?.full_name || "user"}`,
+      details: { role: data.role, action: data.action },
+    });
+
     return { ok: true };
   });
+
 
 export const listAdminShipments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
