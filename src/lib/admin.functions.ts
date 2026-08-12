@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { transitionError, type ShipmentStatus } from "@/lib/shipment-status";
 
 async function requireAdmin(context: { supabase: any; userId: string }) {
   const { data: roles } = await context.supabase
@@ -183,9 +184,17 @@ export const updateShipmentStatus = createServerFn({ method: "POST" })
 
     const { data: before } = await supabaseAdmin
       .from("shipments")
-      .select("title, status")
+      .select("title, status, assigned_transporter_id")
       .eq("id", data.shipmentId)
       .maybeSingle();
+
+    if (!before) throw new Error("Shipment not found");
+
+    const invalid = transitionError(before.status as ShipmentStatus, data.status as ShipmentStatus, {
+      hasTransporter: Boolean(before.assigned_transporter_id),
+    });
+    if (invalid) throw new Error(invalid);
+    if (before.status === data.status) return { ok: true };
 
     const { error } = await supabaseAdmin.from("shipments").update({ status: data.status }).eq("id", data.shipmentId);
     if (error) throw new Error(error.message);

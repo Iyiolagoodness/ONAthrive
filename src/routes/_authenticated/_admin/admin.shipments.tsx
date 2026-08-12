@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { listAdminShipments, updateShipmentStatus, listShipmentTimeline } from "@/lib/admin.functions";
+import { allowedNextStatuses, transitionError, type ShipmentStatus } from "@/lib/shipment-status";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X } from "lucide-react";
@@ -66,7 +67,15 @@ function AdminShipments() {
     }
   };
 
-  const changeStatus = async (shipmentId: string, newStatus: any) => {
+  const changeStatus = async (shipment: any, newStatus: any) => {
+    const shipmentId = shipment.id;
+    const invalid = transitionError(shipment.status as ShipmentStatus, newStatus as ShipmentStatus, {
+      hasTransporter: Boolean(shipment.assigned_transporter_id),
+    });
+    if (invalid) {
+      toast.error(invalid);
+      return;
+    }
     setBusyId(shipmentId);
     try {
       await mutateStatus({ data: { shipmentId, status: newStatus, note: `Admin set status to ${newStatus}` } });
@@ -157,18 +166,28 @@ function AdminShipments() {
                       <td className="px-4 py-3">{profiles[s.assigned_transporter_id] || "—"}</td>
                       <td className="px-4 py-3 font-medium">₦{Number(s.budget_ngn ?? 0).toLocaleString()}</td>
                       <td className="px-4 py-3">
-                        <select
-                          value={s.status}
-                          disabled={busyId === s.id}
-                          onChange={(e) => changeStatus(s.id, e.target.value)}
-                          className="h-8 rounded-md border border-border bg-background px-2 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          {statuses.filter((x) => x !== "all").map((st) => (
-                            <option key={st} value={st}>
-                              {st.replace("_", " ")}
-                            </option>
-                          ))}
-                        </select>
+                        {(() => {
+                          const current = s.status as ShipmentStatus;
+                          const options = [current, ...allowedNextStatuses(current)];
+                          const locked = options.length === 1;
+                          return (
+                            <>
+                              <select
+                                value={current}
+                                disabled={busyId === s.id || locked}
+                                onChange={(e) => changeStatus(s, e.target.value)}
+                                className="h-8 rounded-md border border-border bg-background px-2 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+                              >
+                                {options.map((st) => (
+                                  <option key={st} value={st}>
+                                    {st.replace("_", " ")}
+                                  </option>
+                                ))}
+                              </select>
+                              {locked && <p className="mt-1 text-[11px] text-muted-foreground">No further changes</p>}
+                            </>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <button
