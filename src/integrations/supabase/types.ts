@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json
+          id: string
+          summary: string
+          target_shipment_id: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          summary: string
+          target_shipment_id?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          summary?: string
+          target_shipment_id?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_logs_target_shipment_id_fkey"
+            columns: ["target_shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bids: {
         Row: {
           amount_ngn: number

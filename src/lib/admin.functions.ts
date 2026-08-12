@@ -109,8 +109,26 @@ export const updateUserRole = createServerFn({ method: "POST" })
         .eq("role", data.role);
       if (error) throw new Error(error.message);
     }
+
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", data.userId)
+      .maybeSingle();
+
+    await supabaseAdmin.from("admin_audit_logs").insert({
+      admin_id: context.userId,
+      action: data.action === "add" ? "role_granted" : "role_revoked",
+      target_user_id: data.userId,
+      summary: `${data.action === "add" ? "Granted" : "Revoked"} "${data.role}" role ${
+        data.action === "add" ? "to" : "from"
+      } ${prof?.full_name || "user"}`,
+      details: { role: data.role, action: data.action },
+    });
+
     return { ok: true };
   });
+
 
 export const listAdminShipments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -163,19 +181,82 @@ export const updateShipmentStatus = createServerFn({ method: "POST" })
     await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: before } = await supabaseAdmin
+      .from("shipments")
+      .select("title, status")
+      .eq("id", data.shipmentId)
+      .maybeSingle();
+
     const { error } = await supabaseAdmin.from("shipments").update({ status: data.status }).eq("id", data.shipmentId);
     if (error) throw new Error(error.message);
 
-    if (data.note) {
-      await supabaseAdmin.from("tracking_events").insert({
-        shipment_id: data.shipmentId,
-        actor_id: context.userId,
-        status: data.status,
-        note: data.note,
-      });
-    }
+    await supabaseAdmin.from("tracking_events").insert({
+      shipment_id: data.shipmentId,
+      actor_id: context.userId,
+      status: data.status,
+      note: data.note || "Status updated by admin",
+    });
+
+    await supabaseAdmin.from("admin_audit_logs").insert({
+      admin_id: context.userId,
+      action: "shipment_status_updated",
+      target_shipment_id: data.shipmentId,
+      summary: `Changed "${before?.title || "shipment"}" status from ${before?.status ?? "unknown"} to ${data.status}`,
+      details: { from: before?.status ?? null, to: data.status, note: data.note ?? null },
+    });
+
     return { ok: true };
   });
+
+export const listShipmentTimeline = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { shipmentId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: rows, error } = await supabaseAdmin
+      .from("tracking_events")
+      .select("id, status, note, location, actor_id, created_at")
+      .eq("shipment_id", data.shipmentId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+
+    const actorIds = [...new Set((rows ?? []).map((r: any) => r.actor_id).filter(Boolean))] as string[];
+    let profiles: any[] = [];
+    if (actorIds.length) {
+      const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", actorIds);
+      profiles = profs ?? [];
+    }
+
+    return { events: rows ?? [], profiles };
+  });
+
+export const listAuditLogs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { limit?: number }) => input)
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const limit = Math.min(data.limit ?? 20, 100);
+    const { data: rows, error } = await supabaseAdmin
+      .from("admin_audit_logs")
+      .select("id, admin_id, action, target_user_id, target_shipment_id, summary, details, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(error.message);
+
+    const adminIds = [...new Set((rows ?? []).map((r: any) => r.admin_id))] as string[];
+    let profiles: any[] = [];
+    if (adminIds.length) {
+      const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", adminIds);
+      profiles = profs ?? [];
+    }
+
+    return { logs: rows ?? [], profiles };
+  });
+
 
 export const listAdminBids = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getAdminStats } from "@/lib/admin.functions";
+import { getAdminStats, listAuditLogs } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield } from "lucide-react";
+import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield, ScrollText, Loader2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
 
 function AdminDashboard() {
   const fetchStats = useServerFn(getAdminStats);
+  const fetchLogs = useServerFn(listAuditLogs);
   const [stats, setStats] = useState({
     users: 0,
     shipments: 0,
@@ -25,12 +27,27 @@ function AdminDashboard() {
     openShipments: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [admins, setAdmins] = useState<Record<string, string>>({});
+  const [logsLoading, setLogsLoading] = useState(true);
 
   useEffect(() => {
     fetchStats()
       .then(setStats)
       .finally(() => setLoading(false));
   }, [fetchStats]);
+
+  useEffect(() => {
+    fetchLogs({ data: { limit: 20 } })
+      .then((res) => {
+        setLogs(res.logs);
+        const map: Record<string, string> = {};
+        (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "Admin"));
+        setAdmins(map);
+      })
+      .finally(() => setLogsLoading(false));
+  }, [fetchLogs]);
+
 
   const cards = [
     { label: "Total Users", value: stats.users, icon: Users, href: "/admin/users", color: "bg-blue-500/10 text-blue-600" },
@@ -116,6 +133,35 @@ function AdminDashboard() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-display text-lg font-semibold">Audit Log</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">Recent admin actions: role changes and shipment status updates.</p>
+
+          {logsLoading ? (
+            <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
+          ) : logs.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No admin actions recorded yet.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-border">
+              {logs.map((log) => (
+                <li key={log.id} className="flex flex-wrap items-start justify-between gap-2 py-3">
+                  <div>
+                    <p className="text-sm font-medium">{log.summary}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {admins[log.admin_id] || "Admin"} • {log.action.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString()}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
       </div>
     </div>
   );

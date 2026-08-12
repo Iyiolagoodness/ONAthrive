@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { listAdminShipments, updateShipmentStatus } from "@/lib/admin.functions";
+import { listAdminShipments, updateShipmentStatus, listShipmentTimeline } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Loader2, MapPin, Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/shipments")({
   head: () => ({
@@ -20,6 +21,7 @@ const statuses = ["all", "draft", "open", "bidding", "assigned", "in_transit", "
 function AdminShipments() {
   const fetchShipments = useServerFn(listAdminShipments);
   const mutateStatus = useServerFn(updateShipmentStatus);
+  const fetchTimeline = useServerFn(listShipmentTimeline);
   const [shipments, setShipments] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [total, setTotal] = useState(0);
@@ -27,6 +29,10 @@ function AdminShipments() {
   const [status, setStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [timelineFor, setTimelineFor] = useState<any | null>(null);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timelineActors, setTimelineActors] = useState<Record<string, string>>({});
+  const [timelineLoading, setTimelineLoading] = useState(false);
   const pageSize = 15;
 
   const load = async (p = page, s = status) => {
@@ -44,18 +50,36 @@ function AdminShipments() {
     load();
   }, []);
 
+  const openTimeline = async (shipment: any) => {
+    setTimelineFor(shipment);
+    setTimelineLoading(true);
+    try {
+      const res = await fetchTimeline({ data: { shipmentId: shipment.id } });
+      setTimeline(res.events);
+      const map: Record<string, string> = {};
+      (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "—"));
+      setTimelineActors(map);
+    } catch (err: any) {
+      toast.error(err.message || "Could not load timeline");
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
   const changeStatus = async (shipmentId: string, newStatus: any) => {
     setBusyId(shipmentId);
     try {
-      await mutateStatus({ data: { shipmentId, status: newStatus } });
+      await mutateStatus({ data: { shipmentId, status: newStatus, note: `Admin set status to ${newStatus}` } });
       toast.success("Shipment status updated");
       await load(page, status);
+      if (timelineFor?.id === shipmentId) await openTimeline(timelineFor);
     } catch (err: any) {
       toast.error(err.message || "Update failed");
     } finally {
       setBusyId(null);
     }
   };
+
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -96,22 +120,25 @@ function AdminShipments() {
                   <th className="px-4 py-3 font-medium">Transporter</th>
                   <th className="px-4 py-3 font-medium">Budget</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
+
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center">
+                    <td colSpan={7} className="px-4 py-12 text-center">
                       <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                     </td>
                   </tr>
                 ) : shipments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                       No shipments found.
                     </td>
                   </tr>
                 ) : (
+
                   shipments.map((s) => (
                     <tr key={s.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
@@ -143,7 +170,16 @@ function AdminShipments() {
                           ))}
                         </select>
                       </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => openTimeline(s)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-muted"
+                        >
+                          <History className="h-3.5 w-3.5" /> Timeline
+                        </button>
+                      </td>
                     </tr>
+
                   ))
                 )}
               </tbody>
@@ -181,6 +217,47 @@ function AdminShipments() {
           </div>
         </div>
       </div>
+
+      {timelineFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setTimelineFor(null)}>
+          <div
+            className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Shipment timeline</h2>
+                <p className="text-sm text-muted-foreground">{timelineFor.title}</p>
+              </div>
+              <button onClick={() => setTimelineFor(null)} className="rounded-lg p-1 hover:bg-muted">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {timelineLoading ? (
+              <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
+            ) : timeline.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">No tracking events yet.</p>
+            ) : (
+              <ol className="space-y-4">
+                {timeline.map((ev) => (
+                  <li key={ev.id} className="relative border-l border-border pl-5">
+                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
+                    <p className="text-sm font-semibold capitalize">{String(ev.status).replace("_", " ")}</p>
+                    {ev.note && <p className="text-sm text-muted-foreground">{ev.note}</p>}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {new Date(ev.created_at).toLocaleString()}
+                      {ev.actor_id && timelineActors[ev.actor_id] ? ` • ${timelineActors[ev.actor_id]}` : ""}
+                      {ev.location ? ` • ${ev.location}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
