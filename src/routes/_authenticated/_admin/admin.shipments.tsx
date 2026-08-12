@@ -21,6 +21,7 @@ const statuses = ["all", "draft", "open", "bidding", "assigned", "in_transit", "
 function AdminShipments() {
   const fetchShipments = useServerFn(listAdminShipments);
   const mutateStatus = useServerFn(updateShipmentStatus);
+  const fetchTimeline = useServerFn(listShipmentTimeline);
   const [shipments, setShipments] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [total, setTotal] = useState(0);
@@ -28,6 +29,10 @@ function AdminShipments() {
   const [status, setStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [timelineFor, setTimelineFor] = useState<any | null>(null);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timelineActors, setTimelineActors] = useState<Record<string, string>>({});
+  const [timelineLoading, setTimelineLoading] = useState(false);
   const pageSize = 15;
 
   const load = async (p = page, s = status) => {
@@ -45,18 +50,36 @@ function AdminShipments() {
     load();
   }, []);
 
+  const openTimeline = async (shipment: any) => {
+    setTimelineFor(shipment);
+    setTimelineLoading(true);
+    try {
+      const res = await fetchTimeline({ data: { shipmentId: shipment.id } });
+      setTimeline(res.events);
+      const map: Record<string, string> = {};
+      (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "—"));
+      setTimelineActors(map);
+    } catch (err: any) {
+      toast.error(err.message || "Could not load timeline");
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
   const changeStatus = async (shipmentId: string, newStatus: any) => {
     setBusyId(shipmentId);
     try {
-      await mutateStatus({ data: { shipmentId, status: newStatus } });
+      await mutateStatus({ data: { shipmentId, status: newStatus, note: `Admin set status to ${newStatus}` } });
       toast.success("Shipment status updated");
       await load(page, status);
+      if (timelineFor?.id === shipmentId) await openTimeline(timelineFor);
     } catch (err: any) {
       toast.error(err.message || "Update failed");
     } finally {
       setBusyId(null);
     }
   };
+
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
