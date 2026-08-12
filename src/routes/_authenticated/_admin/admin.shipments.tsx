@@ -127,17 +127,18 @@ function AdminShipments() {
               <tbody className="divide-y divide-border">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center">
+                    <td colSpan={7} className="px-4 py-12 text-center">
                       <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                     </td>
                   </tr>
                 ) : shipments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                       No shipments found.
                     </td>
                   </tr>
                 ) : (
+
                   shipments.map((s) => (
                     <tr key={s.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
