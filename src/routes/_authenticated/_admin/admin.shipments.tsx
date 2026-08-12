@@ -120,6 +120,8 @@ function AdminShipments() {
                   <th className="px-4 py-3 font-medium">Transporter</th>
                   <th className="px-4 py-3 font-medium">Budget</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
+
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
