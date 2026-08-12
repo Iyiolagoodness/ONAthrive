@@ -217,6 +217,47 @@ function AdminShipments() {
           </div>
         </div>
       </div>
+
+      {timelineFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setTimelineFor(null)}>
+          <div
+            className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Shipment timeline</h2>
+                <p className="text-sm text-muted-foreground">{timelineFor.title}</p>
+              </div>
+              <button onClick={() => setTimelineFor(null)} className="rounded-lg p-1 hover:bg-muted">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {timelineLoading ? (
+              <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
+            ) : timeline.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">No tracking events yet.</p>
+            ) : (
+              <ol className="space-y-4">
+                {timeline.map((ev) => (
+                  <li key={ev.id} className="relative border-l border-border pl-5">
+                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
+                    <p className="text-sm font-semibold capitalize">{String(ev.status).replace("_", " ")}</p>
+                    {ev.note && <p className="text-sm text-muted-foreground">{ev.note}</p>}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {new Date(ev.created_at).toLocaleString()}
+                      {ev.actor_id && timelineActors[ev.actor_id] ? ` • ${timelineActors[ev.actor_id]}` : ""}
+                      {ev.location ? ` • ${ev.location}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
