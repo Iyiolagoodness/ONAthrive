@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
 
 function AdminDashboard() {
   const fetchStats = useServerFn(getAdminStats);
+  const fetchLogs = useServerFn(listAuditLogs);
   const [stats, setStats] = useState({
     users: 0,
     shipments: 0,
@@ -26,12 +27,27 @@ function AdminDashboard() {
     openShipments: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [admins, setAdmins] = useState<Record<string, string>>({});
+  const [logsLoading, setLogsLoading] = useState(true);
 
   useEffect(() => {
     fetchStats()
       .then(setStats)
       .finally(() => setLoading(false));
   }, [fetchStats]);
+
+  useEffect(() => {
+    fetchLogs({ data: { limit: 20 } })
+      .then((res) => {
+        setLogs(res.logs);
+        const map: Record<string, string> = {};
+        (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "Admin"));
+        setAdmins(map);
+      })
+      .finally(() => setLogsLoading(false));
+  }, [fetchLogs]);
+
 
   const cards = [
     { label: "Total Users", value: stats.users, icon: Users, href: "/admin/users", color: "bg-blue-500/10 text-blue-600" },
