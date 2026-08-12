@@ -133,6 +133,35 @@ function AdminDashboard() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-display text-lg font-semibold">Audit Log</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">Recent admin actions: role changes and shipment status updates.</p>
+
+          {logsLoading ? (
+            <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
+          ) : logs.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No admin actions recorded yet.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-border">
+              {logs.map((log) => (
+                <li key={log.id} className="flex flex-wrap items-start justify-between gap-2 py-3">
+                  <div>
+                    <p className="text-sm font-medium">{log.summary}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {admins[log.admin_id] || "Admin"} • {log.action.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString()}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
       </div>
     </div>
   );
