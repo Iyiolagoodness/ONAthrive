@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getAdminStats } from "@/lib/admin.functions";
+import { getAdminStats, listAuditLogs } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield } from "lucide-react";
+import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield, ScrollText, Loader2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
   head: () => ({
