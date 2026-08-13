@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { listAdminShipments, updateShipmentStatus, listShipmentTimeline } from "@/lib/admin.functions";
-import { allowedNextStatuses, transitionError, type ShipmentStatus } from "@/lib/shipment-status";
+import { allowedNextStatuses, transitionError, SHIPMENT_STATUSES, type ShipmentStatus } from "@/lib/shipment-status";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/shipments")({
@@ -181,6 +181,7 @@ function AdminShipments() {
                   <th className="px-4 py-3 font-medium">Transporter</th>
                   <th className="px-4 py-3 font-medium">Budget</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Last event</th>
                   <th className="px-4 py-3 font-medium">Actions</th>
 
                 </tr>
@@ -188,13 +189,13 @@ function AdminShipments() {
               <tbody className="divide-y divide-border">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center">
+                    <td colSpan={8} className="px-4 py-12 text-center">
                       <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                     </td>
                   </tr>
                 ) : shipments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                       No shipments found.
                     </td>
                   </tr>
@@ -220,19 +221,21 @@ function AdminShipments() {
                       <td className="px-4 py-3">
                         {(() => {
                           const current = s.status as ShipmentStatus;
-                          const options = [current, ...allowedNextStatuses(current)];
-                          const locked = options.length === 1;
+                          const next = allowedNextStatuses(current);
+                          const options = [current, ...SHIPMENT_STATUSES.filter((st) => st !== current)];
+                          const locked = next.length === 0;
                           return (
                             <>
                               <select
                                 value={current}
                                 disabled={busyId === s.id || locked}
-                                onChange={(e) => changeStatus(s, e.target.value)}
+                                onChange={(e) => requestChange(s, e.target.value)}
                                 className="h-8 rounded-md border border-border bg-background px-2 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
                               >
                                 {options.map((st) => (
                                   <option key={st} value={st}>
                                     {st.replace("_", " ")}
+                                    {st !== current && !next.includes(st) ? " (invalid)" : ""}
                                   </option>
                                 ))}
                               </select>
@@ -240,6 +243,16 @@ function AdminShipments() {
                             </>
                           );
                         })()}
+                      </td>
+                      <td className="px-4 py-3">
+                        {s.last_event ? (
+                          <div>
+                            <p className="text-xs font-medium capitalize">{String(s.last_event.status).replace("_", " ")}</p>
+                            <p className="text-[11px] text-muted-foreground">{new Date(s.last_event.created_at).toLocaleString()}</p>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No events</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <button
@@ -288,6 +301,61 @@ function AdminShipments() {
           </div>
         </div>
       </div>
+
+      {confirmChange && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setConfirmChange(null)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-start gap-3">
+              {confirmChange.reason ? (
+                <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
+              ) : (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
+              )}
+              <div>
+                <h2 className="font-display text-lg font-semibold">Confirm status change</h2>
+                <p className="text-sm text-muted-foreground">{confirmChange.shipment.title}</p>
+              </div>
+            </div>
+
+            <div className="mb-4 rounded-xl border border-border bg-muted/40 p-3 text-sm">
+              <p>
+                <span className="capitalize font-medium">{String(confirmChange.shipment.status).replace("_", " ")}</span>
+                {" → "}
+                <span className="capitalize font-semibold">{confirmChange.next.replace("_", " ")}</span>
+              </p>
+              <p className="mt-2 text-xs">
+                {confirmChange.reason ? (
+                  <span className="text-destructive">Validation: {confirmChange.reason}</span>
+                ) : (
+                  <span className="text-muted-foreground">Validation passed: this transition is allowed.</span>
+                )}
+              </p>
+              {confirmChange.reason && (
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Submitting will be rejected by the server and recorded in the audit log with this reason.
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmChange(null)}
+                className="inline-flex h-9 items-center rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitChange}
+                disabled={busyId === confirmChange.shipment.id}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+              >
+                {busyId === confirmChange.shipment.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                {confirmChange.reason ? "Submit anyway" : "Confirm change"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {timelineFor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setTimelineFor(null)}>
