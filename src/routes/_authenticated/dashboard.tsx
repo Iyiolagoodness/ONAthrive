@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 type Profile = {
   full_name: string | null;
-  phone: string | null;
+  
   user_type: "customer" | "transporter" | "both";
   verified: boolean;
 };
@@ -50,7 +50,7 @@ function Dashboard() {
       setEmail(userData.user.email ?? "");
 
       const [{ data: prof }, { data: wallet }, { data: ships }, { data: myJobs }, { data: myBids }] = await Promise.all([
-        supabase.from("profiles").select("full_name, phone, user_type, verified").eq("id", uid).maybeSingle(),
+        supabase.from("profiles").select("full_name, user_type, verified").eq("id", uid).maybeSingle(),
         supabase.from("wallets").select("balance_ngn").eq("user_id", uid).maybeSingle(),
         supabase
           .from("shipments")
