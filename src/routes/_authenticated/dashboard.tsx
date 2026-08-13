@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 type Profile = {
   full_name: string | null;
-  phone: string | null;
+  
   user_type: "customer" | "transporter" | "both";
   verified: boolean;
 };
