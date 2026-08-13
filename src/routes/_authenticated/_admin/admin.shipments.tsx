@@ -19,6 +19,14 @@ export const Route = createFileRoute("/_authenticated/_admin/admin/shipments")({
 
 const statuses = ["all", "draft", "open", "bidding", "assigned", "in_transit", "delivered", "completed", "cancelled", "disputed"];
 
+const sortOptions = [
+  { value: "created_desc", label: "Newest first" },
+  { value: "created_asc", label: "Oldest first" },
+  { value: "status_asc", label: "Status (A–Z)" },
+  { value: "last_event_desc", label: "Last event (newest)" },
+  { value: "last_event_asc", label: "Last event (oldest)" },
+] as const;
+
 function AdminShipments() {
   const fetchShipments = useServerFn(listAdminShipments);
   const mutateStatus = useServerFn(updateShipmentStatus);
@@ -28,17 +36,22 @@ function AdminShipments() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("all");
+  const [transporter, setTransporter] = useState<"all" | "assigned" | "unassigned">("all");
+  const [sort, setSort] = useState<string>("created_desc");
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirmChange, setConfirmChange] = useState<{ shipment: any; next: ShipmentStatus; reason: string | null } | null>(null);
   const [timelineFor, setTimelineFor] = useState<any | null>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
   const [timelineActors, setTimelineActors] = useState<Record<string, string>>({});
   const [timelineLoading, setTimelineLoading] = useState(false);
   const pageSize = 15;
 
-  const load = async (p = page, s = status) => {
+  const load = async (p = page, s = status, t = transporter, so = sort) => {
     setLoading(true);
-    const res = await fetchShipments({ data: { page: p, pageSize, status: s === "all" ? null : s } });
+    const res = await fetchShipments({
+      data: { page: p, pageSize, status: s === "all" ? null : s, transporter: t, sort: so as any },
+    });
     setShipments(res.shipments);
     const map: Record<string, string> = {};
     (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "—"));
@@ -67,27 +80,33 @@ function AdminShipments() {
     }
   };
 
-  const changeStatus = async (shipment: any, newStatus: any) => {
-    const shipmentId = shipment.id;
-    const invalid = transitionError(shipment.status as ShipmentStatus, newStatus as ShipmentStatus, {
+  const requestChange = (shipment: any, newStatus: string) => {
+    const next = newStatus as ShipmentStatus;
+    if (next === shipment.status) return;
+    const reason = transitionError(shipment.status as ShipmentStatus, next, {
       hasTransporter: Boolean(shipment.assigned_transporter_id),
     });
-    if (invalid) {
-      toast.error(invalid);
-      return;
-    }
-    setBusyId(shipmentId);
+    setConfirmChange({ shipment, next, reason });
+  };
+
+  const submitChange = async () => {
+    if (!confirmChange) return;
+    const { shipment, next } = confirmChange;
+    setBusyId(shipment.id);
     try {
-      await mutateStatus({ data: { shipmentId, status: newStatus, note: `Admin set status to ${newStatus}` } });
+      await mutateStatus({ data: { shipmentId: shipment.id, status: next as any, note: `Admin set status to ${next}` } });
       toast.success("Shipment status updated");
-      await load(page, status);
-      if (timelineFor?.id === shipmentId) await openTimeline(timelineFor);
+      setConfirmChange(null);
+      await load(page, status, transporter, sort);
+      if (timelineFor?.id === shipment.id) await openTimeline(timelineFor);
     } catch (err: any) {
       toast.error(err.message || "Update failed");
+      setConfirmChange(null);
     } finally {
       setBusyId(null);
     }
   };
+
 
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
