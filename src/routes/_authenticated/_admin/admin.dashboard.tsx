@@ -139,7 +139,9 @@ function AdminDashboard() {
             <ScrollText className="h-4 w-4 text-muted-foreground" />
             <h2 className="font-display text-lg font-semibold">Audit Log</h2>
           </div>
-          <p className="text-sm text-muted-foreground">Recent admin actions: role changes and shipment status updates.</p>
+          <p className="text-sm text-muted-foreground">
+            Recent admin actions: role changes, shipment status updates, and rejected status changes with their reason.
+          </p>
 
           {logsLoading ? (
             <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
@@ -153,7 +155,15 @@ function AdminDashboard() {
                     <p className="text-sm font-medium">{log.summary}</p>
                     <p className="text-xs text-muted-foreground">
                       {admins[log.admin_id] || "Admin"} • {log.action.replace(/_/g, " ")}
+                      {log.action === "shipment_status_rejected" && (
+                        <span className="ml-2 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+                          rejected
+                        </span>
+                      )}
                     </p>
+                    {log.action === "shipment_status_rejected" && log.details?.reason && (
+                      <p className="mt-1 text-xs text-destructive">Reason: {log.details.reason}</p>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString()}</p>
                 </li>
