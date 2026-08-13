@@ -133,7 +133,15 @@ export const updateUserRole = createServerFn({ method: "POST" })
 
 export const listAdminShipments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { page?: number; pageSize?: number; status?: string | null }) => input)
+  .inputValidator(
+    (input: {
+      page?: number;
+      pageSize?: number;
+      status?: string | null;
+      transporter?: "all" | "assigned" | "unassigned" | null;
+      sort?: "created_desc" | "created_asc" | "status_asc" | "last_event_desc" | "last_event_asc" | null;
+    }) => input
+  )
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -142,31 +150,63 @@ export const listAdminShipments = createServerFn({ method: "POST" })
     const pageSize = Math.min(data.pageSize ?? 20, 100);
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
+    const sort = data.sort ?? "created_desc";
 
     let query = supabaseAdmin
       .from("shipments")
       .select(
         "id, title, status, pickup_state, dropoff_state, pickup_city, dropoff_city, budget_ngn, weight_kg, package_type, customer_id, assigned_transporter_id, created_at",
         { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(from, to);
+      );
+
+    if (sort === "created_asc") query = query.order("created_at", { ascending: true });
+    else if (sort === "status_asc") query = query.order("status", { ascending: true }).order("created_at", { ascending: false });
+    else query = query.order("created_at", { ascending: false });
+
+    query = query.range(from, to);
 
     if (data.status) {
       query = query.eq("status", data.status as Database["public"]["Enums"]["shipment_status"]);
     }
+    if (data.transporter === "assigned") query = query.not("assigned_transporter_id", "is", null);
+    if (data.transporter === "unassigned") query = query.is("assigned_transporter_id", null);
 
     const { data: rows, error, count } = await query;
     if (error) throw new Error(error.message);
 
-    const userIds = [...new Set((rows ?? []).flatMap((r: any) => [r.customer_id, r.assigned_transporter_id].filter(Boolean)))];
+    const shipmentIds = (rows ?? []).map((r: any) => r.id);
+    const lastEvents: Record<string, { status: string; note: string | null; created_at: string }> = {};
+    if (shipmentIds.length) {
+      const { data: events } = await supabaseAdmin
+        .from("tracking_events")
+        .select("shipment_id, status, note, created_at")
+        .in("shipment_id", shipmentIds)
+        .order("created_at", { ascending: false });
+      (events ?? []).forEach((ev: any) => {
+        if (!lastEvents[ev.shipment_id]) {
+          lastEvents[ev.shipment_id] = { status: ev.status, note: ev.note, created_at: ev.created_at };
+        }
+      });
+    }
+
+    let shipments = (rows ?? []).map((r: any) => ({ ...r, last_event: lastEvents[r.id] ?? null }));
+    if (sort === "last_event_desc" || sort === "last_event_asc") {
+      const dir = sort === "last_event_asc" ? 1 : -1;
+      shipments = [...shipments].sort((a, b) => {
+        const at = a.last_event ? new Date(a.last_event.created_at).getTime() : 0;
+        const bt = b.last_event ? new Date(b.last_event.created_at).getTime() : 0;
+        return (at - bt) * dir;
+      });
+    }
+
+    const userIds = [...new Set(shipments.flatMap((r: any) => [r.customer_id, r.assigned_transporter_id].filter(Boolean)))];
     let profiles: any[] = [];
     if (userIds.length) {
       const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", userIds);
       profiles = profs ?? [];
     }
 
-    return { shipments: rows ?? [], total: count ?? 0, page, pageSize, profiles };
+    return { shipments, total: count ?? 0, page, pageSize, profiles };
   });
 
 export const updateShipmentStatus = createServerFn({ method: "POST" })
@@ -193,8 +233,18 @@ export const updateShipmentStatus = createServerFn({ method: "POST" })
     const invalid = transitionError(before.status as ShipmentStatus, data.status as ShipmentStatus, {
       hasTransporter: Boolean(before.assigned_transporter_id),
     });
-    if (invalid) throw new Error(invalid);
+    if (invalid) {
+      await supabaseAdmin.from("admin_audit_logs").insert({
+        admin_id: context.userId,
+        action: "shipment_status_rejected",
+        target_shipment_id: data.shipmentId,
+        summary: `Rejected status change on "${before.title || "shipment"}" from ${before.status} to ${data.status}: ${invalid}`,
+        details: { from: before.status, to: data.status, reason: invalid, outcome: "rejected" },
+      });
+      throw new Error(invalid);
+    }
     if (before.status === data.status) return { ok: true };
+
 
     const { error } = await supabaseAdmin.from("shipments").update({ status: data.status }).eq("id", data.shipmentId);
     if (error) throw new Error(error.message);
