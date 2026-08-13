@@ -119,22 +119,55 @@ function AdminShipments() {
             <h1 className="font-display text-2xl font-bold tracking-tight">Shipments Overview</h1>
             <p className="text-sm text-muted-foreground">{total.toLocaleString()} shipments total</p>
           </div>
-          <select
-            value={status}
-            onChange={(e) => {
-              const s = e.target.value;
-              setStatus(s);
-              setPage(1);
-              load(1, s);
-            }}
-            className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {s === "all" ? "All statuses" : s.replace("_", " ")}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={status}
+              onChange={(e) => {
+                const s = e.target.value;
+                setStatus(s);
+                setPage(1);
+                load(1, s, transporter, sort);
+              }}
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              {statuses.map((s) => (
+                <option key={s} value={s}>
+                  {s === "all" ? "All statuses" : s.replace("_", " ")}
+                </option>
+              ))}
+            </select>
+            <select
+              value={transporter}
+              onChange={(e) => {
+                const t = e.target.value as typeof transporter;
+                setTransporter(t);
+                setPage(1);
+                load(1, status, t, sort);
+              }}
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="all">Any transporter</option>
+              <option value="assigned">Transporter assigned</option>
+              <option value="unassigned">No transporter</option>
+            </select>
+            <select
+              value={sort}
+              onChange={(e) => {
+                const so = e.target.value;
+                setSort(so);
+                setPage(1);
+                load(1, status, transporter, so);
+              }}
+              className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              {sortOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
