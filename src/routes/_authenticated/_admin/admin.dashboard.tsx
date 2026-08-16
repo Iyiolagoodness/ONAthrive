@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getAdminStats, listAuditLogs } from "@/lib/admin.functions";
+import { getAdminStats, listAuditLogs, listAdminShipments } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield, ScrollText, Loader2 } from "lucide-react";
+import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield, ScrollText, Loader2, Activity } from "lucide-react";
+
 
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
@@ -30,12 +31,27 @@ function AdminDashboard() {
   const [logs, setLogs] = useState<any[]>([]);
   const [admins, setAdmins] = useState<Record<string, string>>({});
   const [logsLoading, setLogsLoading] = useState(true);
+  const fetchShipments = useServerFn(listAdminShipments);
+  const [recent, setRecent] = useState<any[]>([]);
+  const [people, setPeople] = useState<Record<string, string>>({});
+  const [recentLoading, setRecentLoading] = useState(true);
 
   useEffect(() => {
     fetchStats()
       .then(setStats)
       .finally(() => setLoading(false));
   }, [fetchStats]);
+
+  useEffect(() => {
+    fetchShipments({ data: { page: 1, pageSize: 8, sort: "last_event_desc" } })
+      .then((res: any) => {
+        setRecent(res.shipments ?? []);
+        const map: Record<string, string> = {};
+        (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "User"));
+        setPeople(map);
+      })
+      .finally(() => setRecentLoading(false));
+  }, [fetchShipments]);
 
   useEffect(() => {
     fetchLogs({ data: { limit: 20 } })
@@ -47,6 +63,7 @@ function AdminDashboard() {
       })
       .finally(() => setLogsLoading(false));
   }, [fetchLogs]);
+
 
 
   const cards = [
@@ -133,6 +150,62 @@ function AdminDashboard() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              <h2 className="font-display text-lg font-semibold">Shipments Summary</h2>
+            </div>
+            <Link to="/admin/shipments" className="text-sm font-medium text-primary hover:underline">
+              View all shipments
+            </Link>
+          </div>
+          <p className="text-sm text-muted-foreground">Most recent shipment activity, newest timeline event first.</p>
+
+          {recentLoading ? (
+            <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-muted-foreground" />
+          ) : recent.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No shipments yet.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-border">
+              {recent.map((s) => (
+                <li key={s.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="truncate text-sm font-medium">{s.title}</p>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold capitalize text-muted-foreground">
+                        {String(s.status).replace(/_/g, " ")}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {s.pickup_state} → {s.dropoff_state} • {people[s.customer_id] || "Customer"}
+                      {s.assigned_transporter_id ? ` • ${people[s.assigned_transporter_id] || "Transporter"}` : " • unassigned"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {s.last_event ? (
+                        <>
+                          Last event:{" "}
+                          <span className="font-medium capitalize text-foreground">
+                            {String(s.last_event.status).replace(/_/g, " ")}
+                          </span>
+                          {s.last_event.note ? ` — ${s.last_event.note}` : ""}
+                        </>
+                      ) : (
+                        "No timeline events yet"
+                      )}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(s.last_event?.created_at ?? s.created_at).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center gap-2">
