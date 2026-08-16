@@ -31,12 +31,27 @@ function AdminDashboard() {
   const [logs, setLogs] = useState<any[]>([]);
   const [admins, setAdmins] = useState<Record<string, string>>({});
   const [logsLoading, setLogsLoading] = useState(true);
+  const fetchShipments = useServerFn(listAdminShipments);
+  const [recent, setRecent] = useState<any[]>([]);
+  const [people, setPeople] = useState<Record<string, string>>({});
+  const [recentLoading, setRecentLoading] = useState(true);
 
   useEffect(() => {
     fetchStats()
       .then(setStats)
       .finally(() => setLoading(false));
   }, [fetchStats]);
+
+  useEffect(() => {
+    fetchShipments({ data: { page: 1, pageSize: 8, sort: "last_event_desc" } })
+      .then((res: any) => {
+        setRecent(res.shipments ?? []);
+        const map: Record<string, string> = {};
+        (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "User"));
+        setPeople(map);
+      })
+      .finally(() => setRecentLoading(false));
+  }, [fetchShipments]);
 
   useEffect(() => {
     fetchLogs({ data: { limit: 20 } })
@@ -48,6 +63,7 @@ function AdminDashboard() {
       })
       .finally(() => setLogsLoading(false));
   }, [fetchLogs]);
+
 
 
   const cards = [
