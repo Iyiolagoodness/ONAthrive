@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Package, Calendar, Wallet, CheckCircle2, Loader2, User } from "lucide-react";
+import { ShipmentChat } from "@/components/shipment-chat";
 
 export const Route = createFileRoute("/_authenticated/shipments/$id")({
   head: () => ({
