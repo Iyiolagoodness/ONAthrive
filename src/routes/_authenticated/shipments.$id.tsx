@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Package, Calendar, Wallet, CheckCircle2, Loader2, User } from "lucide-react";
+import { ShipmentChat } from "@/components/shipment-chat";
 
 export const Route = createFileRoute("/_authenticated/shipments/$id")({
   head: () => ({
@@ -55,6 +56,7 @@ function ShipmentDetail() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [counterpartyName, setCounterpartyName] = useState<string | null>(null);
 
   async function load() {
     const { data: userData } = await supabase.auth.getUser();
@@ -67,6 +69,19 @@ function ShipmentDetail() {
       return;
     }
     setShipment(sh as Shipment);
+
+    const me = userData.user?.id ?? null;
+    const other =
+      me && me === (sh as Shipment).customer_id
+        ? (sh as Shipment).assigned_transporter_id
+        : (sh as Shipment).customer_id;
+    if (other) {
+      const { data: op } = await supabase.from("profiles").select("full_name").eq("id", other).maybeSingle();
+      setCounterpartyName((op as any)?.full_name ?? null);
+    } else {
+      setCounterpartyName(null);
+    }
+
 
     const { data: bidRows } = await supabase
       .from("bids")
@@ -220,6 +235,13 @@ function ShipmentDetail() {
                 </ul>
               )}
             </div>
+
+            <ShipmentChat
+              shipmentId={shipment.id}
+              currentUserId={userId}
+              counterpartyName={counterpartyName}
+              enabled={!!shipment.assigned_transporter_id}
+            />
           </div>
         </div>
       </div>
