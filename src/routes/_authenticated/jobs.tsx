@@ -150,15 +150,24 @@ function Section({
                     <MapPin className="h-3.5 w-3.5" /> {j.pickup_state} → {j.dropoff_state}
                   </p>
                 </div>
-                {step && (
-                  <button
-                    onClick={() => onAdvance(j)}
-                    disabled={busy === j.id}
-                    className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    to="/shipments/$id"
+                    params={{ id: j.id }}
+                    className="inline-flex h-10 items-center gap-2 rounded-md border border-border px-4 text-sm font-semibold hover:bg-muted"
                   >
-                    {busy === j.id && <Loader2 className="h-4 w-4 animate-spin" />} {step.label}
-                  </button>
-                )}
+                    <MessageCircle className="h-4 w-4" /> Open chat
+                  </Link>
+                  {step && (
+                    <button
+                      onClick={() => onAdvance(j)}
+                      disabled={busy === j.id}
+                      className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                    >
+                      {busy === j.id && <Loader2 className="h-4 w-4 animate-spin" />} {step.label}
+                    </button>
+                  )}
+                </div>
               </li>
             );
           })}
