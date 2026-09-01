@@ -402,3 +402,116 @@ export const listAdminDisputes = createServerFn({ method: "POST" })
 
     return { disputes: rows ?? [], total: count ?? 0, page, pageSize, profiles };
   });
+
+export const listAdminTransporters = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: { page?: number; pageSize?: number; search?: string; onlyActive?: boolean }) => input
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const page = data.page ?? 1;
+    const pageSize = Math.min(data.pageSize ?? 15, 100);
+
+    // Active shipments across all transporters
+    const ACTIVE = ["assigned", "in_transit", "disputed"] as const;
+    const { data: activeShipments, error: shipErr } = await supabaseAdmin
+      .from("shipments")
+      .select("id, title, status, pickup_state, dropoff_state, budget_ngn, assigned_transporter_id, created_at")
+      .in("status", ACTIVE as unknown as string[])
+      .not("assigned_transporter_id", "is", null)
+      .order("created_at", { ascending: false });
+    if (shipErr) throw new Error(shipErr.message);
+
+    const byTransporter = new Map<string, any[]>();
+    (activeShipments ?? []).forEach((s: any) => {
+      const list = byTransporter.get(s.assigned_transporter_id) ?? [];
+      list.push(s);
+      byTransporter.set(s.assigned_transporter_id, list);
+    });
+
+    let profileQuery = supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, phone, user_type, kyc_status, verified, created_at")
+      .in("user_type", ["transporter", "both"]);
+    if (data.search) profileQuery = profileQuery.ilike("full_name", `%${data.search}%`);
+    const { data: profiles, error: profErr } = await profileQuery;
+    if (profErr) throw new Error(profErr.message);
+
+    let candidates = profiles ?? [];
+    if (data.onlyActive) candidates = candidates.filter((p: any) => (byTransporter.get(p.id)?.length ?? 0) > 0);
+
+    const ids = candidates.map((p: any) => p.id);
+    let tps: any[] = [];
+    if (ids.length) {
+      const { data: tpRows } = await supabaseAdmin
+        .from("transporter_profiles")
+        .select("id, business_name, base_state, vehicle_types, plate_number, rating, rating_count, completed_jobs, insured, available")
+        .in("id", ids);
+      tps = tpRows ?? [];
+    }
+    const tpById = new Map(tps.map((t: any) => [t.id, t]));
+
+    const rows = candidates
+      .map((p: any) => {
+        const active = byTransporter.get(p.id) ?? [];
+        return {
+          ...p,
+          transporter: tpById.get(p.id) ?? null,
+          active_count: active.length,
+          active_shipments: active.slice(0, 5),
+        };
+      })
+      .sort((a: any, b: any) => b.active_count - a.active_count || (a.full_name ?? "").localeCompare(b.full_name ?? ""));
+
+    const total = rows.length;
+    const from = (page - 1) * pageSize;
+
+    return { transporters: rows.slice(from, from + pageSize), total, page, pageSize };
+  });
+
+export const updateTransporterFlags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; verified?: boolean; available?: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name, verified")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (!prof) throw new Error("Transporter not found");
+
+    if (typeof data.verified === "boolean") {
+      const { error } = await supabaseAdmin.from("profiles").update({ verified: data.verified }).eq("id", data.userId);
+      if (error) throw new Error(error.message);
+      await supabaseAdmin.from("admin_audit_logs").insert({
+        admin_id: context.userId,
+        action: data.verified ? "transporter_verified" : "transporter_unverified",
+        target_user_id: data.userId,
+        summary: `${data.verified ? "Verified" : "Removed verification from"} transporter ${prof.full_name || "user"}`,
+        details: { verified: data.verified },
+      });
+    }
+
+    if (typeof data.available === "boolean") {
+      const { error } = await supabaseAdmin
+        .from("transporter_profiles")
+        .upsert({ id: data.userId, available: data.available })
+        .select();
+      if (error) throw new Error(error.message);
+      await supabaseAdmin.from("admin_audit_logs").insert({
+        admin_id: context.userId,
+        action: data.available ? "transporter_enabled" : "transporter_paused",
+        target_user_id: data.userId,
+        summary: `${data.available ? "Marked available" : "Paused"} transporter ${prof.full_name || "user"}`,
+        details: { available: data.available },
+      });
+    }
+
+    return { ok: true };
+  });
