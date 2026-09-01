@@ -234,6 +234,13 @@ function ShipmentDetail() {
                 </ul>
               )}
             </div>
+
+            <ShipmentChat
+              shipmentId={shipment.id}
+              currentUserId={userId}
+              counterpartyName={counterpartyName}
+              enabled={!!shipment.assigned_transporter_id}
+            />
           </div>
         </div>
       </div>
