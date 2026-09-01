@@ -55,6 +55,7 @@ function ShipmentDetail() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [counterpartyName, setCounterpartyName] = useState<string | null>(null);
 
   async function load() {
     const { data: userData } = await supabase.auth.getUser();
