@@ -69,6 +69,19 @@ function ShipmentDetail() {
     }
     setShipment(sh as Shipment);
 
+    const me = userData.user?.id ?? null;
+    const other =
+      me && me === (sh as Shipment).customer_id
+        ? (sh as Shipment).assigned_transporter_id
+        : (sh as Shipment).customer_id;
+    if (other) {
+      const { data: op } = await supabase.from("profiles").select("full_name").eq("id", other).maybeSingle();
+      setCounterpartyName((op as any)?.full_name ?? null);
+    } else {
+      setCounterpartyName(null);
+    }
+
+
     const { data: bidRows } = await supabase
       .from("bids")
       .select("id, transporter_id, amount_ngn, message, eta_days, status, created_at")
