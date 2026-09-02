@@ -143,6 +143,72 @@ export type Database = {
           },
         ]
       }
+      kyc_submissions: {
+        Row: {
+          created_at: string
+          driver_license_number: string | null
+          face_check_passed: boolean
+          face_match_score: number | null
+          id: string
+          license_path: string | null
+          nin: string
+          plate_number: string | null
+          portrait_path: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          selfie_path: string
+          status: Database["public"]["Enums"]["kyc_status"]
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+          vehicle_reg_number: string | null
+          vehicle_reg_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          driver_license_number?: string | null
+          face_check_passed?: boolean
+          face_match_score?: number | null
+          id?: string
+          license_path?: string | null
+          nin: string
+          plate_number?: string | null
+          portrait_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_path: string
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+          vehicle_reg_number?: string | null
+          vehicle_reg_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          driver_license_number?: string | null
+          face_check_passed?: boolean
+          face_match_score?: number | null
+          id?: string
+          license_path?: string | null
+          nin?: string
+          plate_number?: string | null
+          portrait_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_path?: string
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+          vehicle_reg_number?: string | null
+          vehicle_reg_path?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
