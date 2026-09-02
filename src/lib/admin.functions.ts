@@ -416,11 +416,11 @@ export const listAdminTransporters = createServerFn({ method: "POST" })
     const pageSize = Math.min(data.pageSize ?? 15, 100);
 
     // Active shipments across all transporters
-    const ACTIVE = ["assigned", "in_transit", "disputed"] as const;
+    const ACTIVE: ShipmentStatus[] = ["assigned", "in_transit", "disputed"];
     const { data: activeShipments, error: shipErr } = await supabaseAdmin
       .from("shipments")
       .select("id, title, status, pickup_state, dropoff_state, budget_ngn, assigned_transporter_id, created_at")
-      .in("status", ACTIVE as unknown as string[])
+      .in("status", ACTIVE)
       .not("assigned_transporter_id", "is", null)
       .order("created_at", { ascending: false });
     if (shipErr) throw new Error(shipErr.message);
