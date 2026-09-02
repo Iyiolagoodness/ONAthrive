@@ -37,6 +37,7 @@ export const Route = createFileRoute("/_authenticated/_admin")({
 const nav = [
   { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Users", to: "/admin/users", icon: Users },
+  { label: "Transporters", to: "/admin/transporters", icon: Truck },
   { label: "Shipments", to: "/admin/shipments", icon: Package },
   { label: "Bids & TXNs", to: "/admin/bids", icon: Gavel },
   { label: "Disputes", to: "/admin/disputes", icon: AlertTriangle },
