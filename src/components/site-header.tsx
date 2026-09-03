@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Moon, Sun, Menu, X, LayoutDashboard, Shield } from "lucide-react";
+import { Moon, Sun, Menu, X, LayoutDashboard, Shield, IdCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/lib/theme";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +85,13 @@ export function SiteHeader() {
           {signedIn ? (
             <>
               <NotificationBell />
+              <Link
+                to="/kyc"
+                className="hidden h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted sm:inline-flex"
+              >
+                <IdCard className="h-4 w-4" />
+                Verify ID
+              </Link>
               {isAdmin && (
                 <Link
                   to="/admin/dashboard"

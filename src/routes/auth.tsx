@@ -49,7 +49,7 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Account created! Check your email to confirm.");
-        navigate({ to: "/dashboard", replace: true });
+        navigate({ to: "/kyc", replace: true });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;

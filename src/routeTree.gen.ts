@@ -23,6 +23,7 @@ import { Route as AuthenticatedShipmentsIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
 import { Route as AuthenticatedAdminAdminTransportersRouteImport } from './routes/_authenticated/_admin/admin.transporters'
 import { Route as AuthenticatedAdminAdminShipmentsRouteImport } from './routes/_authenticated/_admin/admin.shipments'
+import { Route as AuthenticatedAdminAdminKycRouteImport } from './routes/_authenticated/_admin/admin.kyc'
 import { Route as AuthenticatedAdminAdminDisputesRouteImport } from './routes/_authenticated/_admin/admin.disputes'
 import { Route as AuthenticatedAdminAdminDashboardRouteImport } from './routes/_authenticated/_admin/admin.dashboard'
 import { Route as AuthenticatedAdminAdminBidsRouteImport } from './routes/_authenticated/_admin/admin.bids'
@@ -102,6 +103,12 @@ const AuthenticatedAdminAdminShipmentsRoute =
     path: '/admin/shipments',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAdminKycRoute =
+  AuthenticatedAdminAdminKycRouteImport.update({
+    id: '/admin/kyc',
+    path: '/admin/kyc',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminAdminDisputesRoute =
   AuthenticatedAdminAdminDisputesRouteImport.update({
     id: '/admin/disputes',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
   '/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
   '/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/admin/kyc': typeof AuthenticatedAdminAdminKycRoute
   '/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
   '/admin/transporters': typeof AuthenticatedAdminAdminTransportersRoute
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
   '/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
   '/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/admin/kyc': typeof AuthenticatedAdminAdminKycRoute
   '/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
   '/admin/transporters': typeof AuthenticatedAdminAdminTransportersRoute
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/_admin/admin/bids': typeof AuthenticatedAdminAdminBidsRoute
   '/_authenticated/_admin/admin/dashboard': typeof AuthenticatedAdminAdminDashboardRoute
   '/_authenticated/_admin/admin/disputes': typeof AuthenticatedAdminAdminDisputesRoute
+  '/_authenticated/_admin/admin/kyc': typeof AuthenticatedAdminAdminKycRoute
   '/_authenticated/_admin/admin/shipments': typeof AuthenticatedAdminAdminShipmentsRoute
   '/_authenticated/_admin/admin/transporters': typeof AuthenticatedAdminAdminTransportersRoute
   '/_authenticated/_admin/admin/users': typeof AuthenticatedAdminAdminUsersRoute
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/admin/bids'
     | '/admin/dashboard'
     | '/admin/disputes'
+    | '/admin/kyc'
     | '/admin/shipments'
     | '/admin/transporters'
     | '/admin/users'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/bids'
     | '/admin/dashboard'
     | '/admin/disputes'
+    | '/admin/kyc'
     | '/admin/shipments'
     | '/admin/transporters'
     | '/admin/users'
@@ -226,6 +238,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/admin/bids'
     | '/_authenticated/_admin/admin/dashboard'
     | '/_authenticated/_admin/admin/disputes'
+    | '/_authenticated/_admin/admin/kyc'
     | '/_authenticated/_admin/admin/shipments'
     | '/_authenticated/_admin/admin/transporters'
     | '/_authenticated/_admin/admin/users'
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminShipmentsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/_admin/admin/kyc': {
+      id: '/_authenticated/_admin/admin/kyc'
+      path: '/admin/kyc'
+      fullPath: '/admin/kyc'
+      preLoaderRoute: typeof AuthenticatedAdminAdminKycRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/_admin/admin/disputes': {
       id: '/_authenticated/_admin/admin/disputes'
       path: '/admin/disputes'
@@ -365,6 +385,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAdminBidsRoute: typeof AuthenticatedAdminAdminBidsRoute
   AuthenticatedAdminAdminDashboardRoute: typeof AuthenticatedAdminAdminDashboardRoute
   AuthenticatedAdminAdminDisputesRoute: typeof AuthenticatedAdminAdminDisputesRoute
+  AuthenticatedAdminAdminKycRoute: typeof AuthenticatedAdminAdminKycRoute
   AuthenticatedAdminAdminShipmentsRoute: typeof AuthenticatedAdminAdminShipmentsRoute
   AuthenticatedAdminAdminTransportersRoute: typeof AuthenticatedAdminAdminTransportersRoute
   AuthenticatedAdminAdminUsersRoute: typeof AuthenticatedAdminAdminUsersRoute
@@ -376,6 +397,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminAdminDashboardRoute:
       AuthenticatedAdminAdminDashboardRoute,
     AuthenticatedAdminAdminDisputesRoute: AuthenticatedAdminAdminDisputesRoute,
+    AuthenticatedAdminAdminKycRoute: AuthenticatedAdminAdminKycRoute,
     AuthenticatedAdminAdminShipmentsRoute:
       AuthenticatedAdminAdminShipmentsRoute,
     AuthenticatedAdminAdminTransportersRoute:
