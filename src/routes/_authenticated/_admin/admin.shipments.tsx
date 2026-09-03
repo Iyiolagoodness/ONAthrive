@@ -31,6 +31,12 @@ function AdminShipments() {
   const fetchShipments = useServerFn(listAdminShipments);
   const mutateStatus = useServerFn(updateShipmentStatus);
   const fetchTimeline = useServerFn(listShipmentTimeline);
+  const fetchKycLog = useServerFn(listKycAuditLog);
+  const [kycEntries, setKycEntries] = useState<any[]>([]);
+  const [kycProfiles, setKycProfiles] = useState<Record<string, string>>({});
+  const [kycLoading, setKycLoading] = useState(true);
+  const [kycFilter, setKycFilter] = useState<"all" | "submitted" | "approved" | "rejected" | "status_changed">("all");
+
   const [shipments, setShipments] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [total, setTotal] = useState(0);
