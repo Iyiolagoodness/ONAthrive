@@ -515,3 +515,94 @@ export const updateTransporterFlags = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+export const listKycAuditLog = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { limit?: number }) => input)
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const limit = Math.min(data.limit ?? 30, 100);
+
+    const { data: subs, error: subErr } = await supabaseAdmin
+      .from("kyc_submissions")
+      .select("id, user_id, user_type, status, review_notes, reviewed_by, reviewed_at, created_at, updated_at")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (subErr) throw new Error(subErr.message);
+
+    const { data: logs, error: logErr } = await supabaseAdmin
+      .from("admin_audit_logs")
+      .select("id, admin_id, action, target_user_id, summary, details, created_at")
+      .like("action", "kyc%")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (logErr) throw new Error(logErr.message);
+
+    type Entry = {
+      id: string;
+      kind: "submitted" | "approved" | "rejected" | "status_changed";
+      userId: string | null;
+      actorId: string | null;
+      userType: string | null;
+      note: string | null;
+      summary: string;
+      at: string;
+    };
+
+    const entries: Entry[] = [];
+
+    for (const s of subs ?? []) {
+      entries.push({
+        id: `${s.id}-submitted`,
+        kind: "submitted",
+        userId: s.user_id,
+        actorId: s.user_id,
+        userType: s.user_type,
+        note: null,
+        summary: `KYC submission received (${String(s.user_type).replace("_", " ")})`,
+        at: s.created_at,
+      });
+      if (s.reviewed_at && (s.status === "approved" || s.status === "rejected")) {
+        entries.push({
+          id: `${s.id}-${s.status}`,
+          kind: s.status as "approved" | "rejected",
+          userId: s.user_id,
+          actorId: s.reviewed_by ?? null,
+          userType: s.user_type,
+          note: s.review_notes ?? null,
+          summary: `KYC submission ${s.status}`,
+          at: s.reviewed_at,
+        });
+      }
+    }
+
+    for (const l of logs ?? []) {
+      const details = (l.details ?? {}) as Record<string, unknown>;
+      entries.push({
+        id: l.id,
+        kind: "status_changed",
+        userId: l.target_user_id ?? null,
+        actorId: l.admin_id,
+        userType: (details["user_type"] as string) ?? null,
+        note: (details["notes"] as string) ?? (details["review_notes"] as string) ?? null,
+        summary: l.summary,
+        at: l.created_at,
+      });
+    }
+
+    entries.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    const trimmed = entries.slice(0, limit);
+
+    const ids = [
+      ...new Set(trimmed.flatMap((e) => [e.userId, e.actorId]).filter(Boolean) as string[]),
+    ];
+    let profiles: any[] = [];
+    if (ids.length) {
+      const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", ids);
+      profiles = profs ?? [];
+    }
+
+    return { entries: trimmed, profiles };
+  });
