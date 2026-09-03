@@ -60,9 +60,26 @@ function AdminShipments() {
     setLoading(false);
   };
 
+  const loadKyc = async () => {
+    setKycLoading(true);
+    try {
+      const res = await fetchKycLog({ data: { limit: 30 } });
+      setKycEntries(res.entries);
+      const map: Record<string, string> = {};
+      (res.profiles ?? []).forEach((p: any) => (map[p.id] = p.full_name || "—"));
+      setKycProfiles(map);
+    } catch (err: any) {
+      toast.error(err.message || "Could not load KYC audit log");
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
   useEffect(() => {
     load();
+    loadKyc();
   }, []);
+
 
   const openTimeline = async (shipment: any) => {
     setTimelineFor(shipment);
