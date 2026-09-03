@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { listAdminShipments, updateShipmentStatus, listShipmentTimeline } from "@/lib/admin.functions";
+import { listAdminShipments, updateShipmentStatus, listShipmentTimeline, listKycAuditLog } from "@/lib/admin.functions";
 import { allowedNextStatuses, transitionError, SHIPMENT_STATUSES, type ShipmentStatus } from "@/lib/shipment-status";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X, AlertTriangle, CheckCircle2, IdCard, RefreshCw } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/shipments")({
@@ -322,6 +322,74 @@ function AdminShipments() {
               </button>
             </div>
           </div>
+        </div>
+
+        <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <IdCard className="h-4 w-4 text-primary" />
+              <h2 className="font-display text-base font-semibold">KYC audit log</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={kycFilter}
+                onChange={(e) => setKycFilter(e.target.value as typeof kycFilter)}
+                className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="all">All events</option>
+                <option value="submitted">Submitted</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="status_changed">Status changes</option>
+              </select>
+              <button
+                onClick={loadKyc}
+                className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> Refresh
+              </button>
+            </div>
+          </div>
+
+          {kycLoading ? (
+            <Loader2 className="mx-auto my-10 h-6 w-6 animate-spin text-muted-foreground" />
+          ) : kycEntries.filter((e) => kycFilter === "all" || e.kind === kycFilter).length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">No KYC activity yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {kycEntries
+                .filter((e) => kycFilter === "all" || e.kind === kycFilter)
+                .map((e) => (
+                  <li key={e.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${
+                            e.kind === "approved"
+                              ? "bg-secondary/15 text-secondary"
+                              : e.kind === "rejected"
+                                ? "bg-destructive/10 text-destructive"
+                                : e.kind === "submitted"
+                                  ? "bg-primary/10 text-primary"
+                                  : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {String(e.kind).replace("_", " ")}
+                        </span>
+                        <p className="truncate text-sm font-medium">{e.summary}</p>
+                      </div>
+                      {e.note && <p className="mt-1 text-sm text-muted-foreground">Note: {e.note}</p>}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {new Date(e.at).toLocaleString()}
+                        {e.userId ? ` • User: ${kycProfiles[e.userId] || "—"}` : ""}
+                        {e.actorId && e.actorId !== e.userId ? ` • By: ${kycProfiles[e.actorId] || "—"}` : ""}
+                        {e.userType ? ` • ${String(e.userType).replace("_", " ")}` : ""}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          )}
         </div>
       </div>
 
