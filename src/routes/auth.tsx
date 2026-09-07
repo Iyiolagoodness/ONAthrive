@@ -63,21 +63,23 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
-    setLoading(true);
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) throw new Error((result.error as Error).message ?? "Google sign-in failed");
-      if (result.redirected) return;
-      navigate({ to: "/dashboard", replace: true });
-    } catch (err: any) {
-      toast.error(err.message ?? "Google sign-in failed");
-    } finally {
-      setLoading(false);
-    }
+ async function handleGoogle() {
+  setLoading(true);
+
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth`,
+      },
+    });
+
+    if (error) throw error;
+  } catch (err: any) {
+    toast.error(err.message ?? "Google sign-in failed");
+    setLoading(false);
   }
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4 py-12">
