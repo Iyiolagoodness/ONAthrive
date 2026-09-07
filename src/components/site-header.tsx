@@ -59,7 +59,7 @@ export function SiteHeader() {
               <circle cx="17" cy="17" r="2" />
             </svg>
           </div>
-          <span className="font-display text-xl font-bold tracking-tight">LogiLink</span>
+          <span className="font-display text-xl font-bold tracking-tight">ONAthrive</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">

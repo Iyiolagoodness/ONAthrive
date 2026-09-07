@@ -7,10 +7,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — LogiLink" },
-      { name: "description", content: "Sign in or create your LogiLink account to ship or transport across Nigeria." },
-      { property: "og:title", content: "Sign in — LogiLink" },
-      { property: "og:description", content: "Access your LogiLink dashboard." },
+      { title: "Sign in — ONAthrive" },
+      { name: "description", content: "Sign in or create your ONAthrive account to ship or transport across Nigeria." },
+      { property: "og:title", content: "Sign in — ONAthrive" },
+      { property: "og:description", content: "Access your ONAthrive dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [userType, setUserType] = useState<"customer" | "transporter">("customer");
+  const [userType, setUserType] = useState <"customer" | "transporter">("customer");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -93,7 +93,7 @@ function AuthPage() {
               <circle cx="17" cy="17" r="2" />
             </svg>
           </div>
-          <span className="font-display text-2xl font-bold tracking-tight">LogiLink</span>
+          <span className="font-display text-2xl font-bold tracking-tight">ONAthrive</span>
         </Link>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-elegant)]">
@@ -115,7 +115,7 @@ function AuthPage() {
           </div>
 
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            {mode === "signin" ? "Welcome back" : "Join LogiLink"}
+            {mode === "signin" ? "Welcome back" : "Join ONAthrive"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signin" ? "Sign in to manage your shipments." : "Ship or transport across Nigeria."}
@@ -214,7 +214,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          By continuing you agree to LogiLink's Terms & Privacy.
+          By continuing you agree to ONAthrive's Terms & Privacy.
         </p>
       </div>
     </div>

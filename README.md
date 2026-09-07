@@ -8,13 +8,13 @@ Project Foundation & Product Requirements Document (PRD)
 
 PROJECT NAME (Temporary)                                             light theme and dark theme
 
-Project Codename: LogiLink AI
+Project Codename: ONAthrive AI
 
 (We can choose a better brand name later.)
 
 Possible names:
 
- LogiLink
+ ONAthrive
 
  CargoLink
 

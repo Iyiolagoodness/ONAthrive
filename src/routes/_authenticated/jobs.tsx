@@ -7,9 +7,9 @@ import { ArrowLeft, MapPin, Truck, Loader2, Package, MessageCircle } from "lucid
 export const Route = createFileRoute("/_authenticated/jobs")({
   head: () => ({
     meta: [
-      { title: "My jobs — LogiLink" },
+      { title: "My jobs — ONAthrive" },
       { name: "description", content: "Manage the shipments assigned to you and update delivery progress." },
-      { property: "og:title", content: "My jobs — LogiLink" },
+      { property: "og:title", content: "My jobs — ONAthrive" },
       { property: "og:description", content: "Manage the shipments assigned to you and update delivery progress." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -7,8 +7,8 @@ import { LogOut, Package, Truck, Wallet, Plus, ArrowRight, MapPin } from "lucide
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — LogiLink" },
-      { name: "description", content: "Manage your shipments, bids, and wallet on LogiLink." },
+      { title: "Dashboard — ONAthrive" },
+      { name: "description", content: "Manage your shipments, bids, and wallet on ONAthrive." },
     ],
   }),
   component: Dashboard,
@@ -109,7 +109,7 @@ function Dashboard() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Truck className="h-5 w-5" />
             </div>
-            <span className="font-display text-xl font-bold tracking-tight">LogiLink</span>
+            <span className="font-display text-xl font-bold tracking-tight">ONAthrive</span>
           </Link>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{email}</span>

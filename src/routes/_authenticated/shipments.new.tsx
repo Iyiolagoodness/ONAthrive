@@ -8,7 +8,7 @@ import { NIGERIA_STATES, PACKAGE_TYPES } from "@/lib/nigeria";
 export const Route = createFileRoute("/_authenticated/shipments/new")({
   head: () => ({
     meta: [
-      { title: "Post a shipment — LogiLink" },
+      { title: "Post a shipment — ONAthrive" },
       { name: "description", content: "Post a new shipment and receive bids from verified Nigerian transporters." },
     ],
   }),

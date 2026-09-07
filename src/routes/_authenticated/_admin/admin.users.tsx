@@ -8,8 +8,8 @@ import { Search, Shield, User, ChevronLeft, ChevronRight, Loader2 } from "lucide
 export const Route = createFileRoute("/_authenticated/_admin/admin/users")({
   head: () => ({
     meta: [
-      { title: "Users — Admin — LogiLink" },
-      { name: "description", content: "Manage LogiLink users and roles." },
+      { title: "Users — Admin — ONAthrive" },
+      { name: "description", content: "Manage ONAthrive users and roles." },
     ],
   }),
   component: AdminUsers,

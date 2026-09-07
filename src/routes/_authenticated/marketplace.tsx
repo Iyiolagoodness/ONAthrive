@@ -8,9 +8,9 @@ import { NIGERIA_STATES } from "@/lib/nigeria";
 export const Route = createFileRoute("/_authenticated/marketplace")({
   head: () => ({
     meta: [
-      { title: "Marketplace — LogiLink" },
+      { title: "Marketplace — ONAthrive" },
       { name: "description", content: "Browse open shipments across Nigeria and place competitive bids." },
-      { property: "og:title", content: "Marketplace — LogiLink" },
+      { property: "og:title", content: "Marketplace — ONAthrive" },
       { property: "og:description", content: "Browse open shipments across Nigeria and place competitive bids." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

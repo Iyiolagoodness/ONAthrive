@@ -8,16 +8,16 @@ export const Route = createFileRoute("/_authenticated/notifications")({
   component: NotificationsPage,
   head: () => ({
     meta: [
-      { title: "Notifications — LogiLink AI" },
+      { title: "Notifications — ONAthrive AI" },
       {
         name: "description",
         content:
-          "Review every bid, job and delivery alert for your LogiLink shipments. Mark alerts as read or clear them in bulk.",
+          "Review every bid, job and delivery alert for your ONAthrive shipments. Mark alerts as read or clear them in bulk.",
       },
-      { property: "og:title", content: "Notifications — LogiLink AI" },
+      { property: "og:title", content: "Notifications — ONAthrive AI" },
       {
         property: "og:description",
-        content: "Review and manage all your LogiLink bid, job and delivery alerts in one place.",
+        content: "Review and manage all your ONAthrive bid, job and delivery alerts in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

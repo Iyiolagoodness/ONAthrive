@@ -20,7 +20,7 @@ import {
 export const Route = createFileRoute("/_authenticated/_admin/admin/transporters")({
   head: () => ({
     meta: [
-      { title: "Transporters — Admin — LogiLink" },
+      { title: "Transporters — Admin — ONAthrive" },
       { name: "description", content: "Review transporters with active shipments, verify them and pause availability." },
     ],
   }),

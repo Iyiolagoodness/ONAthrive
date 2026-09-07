@@ -19,14 +19,14 @@ import {
 export const Route = createFileRoute("/_authenticated/kyc")({
   head: () => ({
     meta: [
-      { title: "Identity verification (KYC) — LogiLink" },
+      { title: "Identity verification (KYC) — ONAthrive" },
       {
         name: "description",
         content:
-          "Verify your identity on LogiLink: NIN and facial verification for customers, plus driver's licence and vehicle registration for transporters.",
+          "Verify your identity on ONAthrive: NIN and facial verification for customers, plus driver's licence and vehicle registration for transporters.",
       },
-      { property: "og:title", content: "Identity verification — LogiLink" },
-      { property: "og:description", content: "Complete KYC to ship or transport goods on LogiLink." },
+      { property: "og:title", content: "Identity verification — ONAthrive" },
+      { property: "og:description", content: "Complete KYC to ship or transport goods on ONAthrive." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

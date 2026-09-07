@@ -7,8 +7,8 @@ import { ChevronLeft, ChevronRight, Loader2, Gavel, CreditCard } from "lucide-re
 export const Route = createFileRoute("/_authenticated/_admin/admin/bids")({
   head: () => ({
     meta: [
-      { title: "Bids & Transactions — Admin — LogiLink" },
-      { name: "description", content: "Audit bids and transactions on LogiLink." },
+      { title: "Bids & Transactions — Admin — ONAthrive" },
+      { name: "description", content: "Audit bids and transactions on ONAthrive." },
     ],
   }),
   component: AdminBids,

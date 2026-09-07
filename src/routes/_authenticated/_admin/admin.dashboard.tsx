@@ -9,8 +9,8 @@ import { Users, Package, Gavel, CreditCard, AlertTriangle, MapPin, Shield, Scrol
 export const Route = createFileRoute("/_authenticated/_admin/admin/dashboard")({
   head: () => ({
     meta: [
-      { title: "Admin Dashboard — LogiLink" },
-      { name: "description", content: "Admin overview for LogiLink." },
+      { title: "Admin Dashboard — ONAthrive" },
+      { name: "description", content: "Admin overview for ONAthrive." },
     ],
   }),
   component: AdminDashboard,
@@ -84,7 +84,7 @@ function AdminDashboard() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Overview of the LogiLink marketplace.</p>
+            <p className="text-sm text-muted-foreground">Overview of the ONAthrive marketplace.</p>
           </div>
         </div>
 

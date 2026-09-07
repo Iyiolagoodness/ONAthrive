@@ -10,8 +10,8 @@ import { ChevronLeft, ChevronRight, Loader2, MapPin, Package, History, X, AlertT
 export const Route = createFileRoute("/_authenticated/_admin/admin/shipments")({
   head: () => ({
     meta: [
-      { title: "Shipments — Admin — LogiLink" },
-      { name: "description", content: "Overview of all shipments on LogiLink." },
+      { title: "Shipments — Admin — ONAthrive" },
+      { name: "description", content: "Overview of all shipments on ONAthrive." },
     ],
   }),
   component: AdminShipments,

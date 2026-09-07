@@ -32,7 +32,7 @@ export function SiteFooter() {
                   <circle cx="17" cy="17" r="2" />
                 </svg>
               </div>
-              <span className="font-display text-xl font-bold">LogiLink</span>
+              <span className="font-display text-xl font-bold">ONAthrive</span>
             </div>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
               Africa's trusted digital logistics marketplace. Compare verified transporters, pay securely with escrow, and track every shipment in real time.
@@ -64,7 +64,7 @@ export function SiteFooter() {
           ))}
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} LogiLink Technologies. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} ONAthrive Technologies. All rights reserved.</p>
           <div className="flex gap-4 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground">Twitter</a>
             <a href="#" className="hover:text-foreground">LinkedIn</a>

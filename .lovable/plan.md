@@ -1,5 +1,5 @@
 
-# LogiLink AI — Iteration 1 Plan
+# ONAthrive AI — Iteration 1 Plan
 
 The full blueprint (customer + driver + fleet + admin + AI + payments + escrow + tracking) is a multi-month build. To make real progress, iteration 1 is scoped to **the marketing homepage + Supabase wiring only**. Later iterations add auth, dashboards, shipments, bids, etc.
 
@@ -44,12 +44,12 @@ Per Volume 2 brief:
 
 ## 4. Route-level SEO
 
-- `index.tsx` gets its own `head()` with LogiLink-specific title, description, og:title/description, og:type=website, twitter:card.
+- `index.tsx` gets its own `head()` with ONAthrive-specific title, description, og:title/description, og:type=website, twitter:card.
 - `__root.tsx` metadata cleaned up (remove "Lovable App" placeholder).
 
 ## 5. Brand name
 
-Using **LogiLink** as the working brand until you decide otherwise.
+Using **ONAthrive** as the working brand until you decide otherwise.
 
 ## Technical notes
 
@@ -70,6 +70,6 @@ Using **LogiLink** as the working brand until you decide otherwise.
 ## Open questions
 
 I still need answers to build iteration 2 well; not blockers for iteration 1:
-- Confirm brand name (LogiLink vs CargoConnect / MoveNaija / SwiftHaul / other).
+- Confirm brand name (ONAthrive vs CargoConnect / MoveNaija / SwiftHaul / other).
 - Which existing tables live in your Supabase? Share names + roughly which columns, or invite me to inspect via a service-role key later when we start writing server functions.
 - Do you want me to explore 2–3 rendered homepage design directions first, or build straight from the Volume 2 spec?

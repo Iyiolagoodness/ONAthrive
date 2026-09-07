@@ -8,7 +8,7 @@ import { ShipmentChat } from "@/components/shipment-chat";
 export const Route = createFileRoute("/_authenticated/shipments/$id")({
   head: () => ({
     meta: [
-      { title: "Shipment — LogiLink" },
+      { title: "Shipment — ONAthrive" },
       { name: "description", content: "View your shipment details and transporter bids." },
     ],
   }),

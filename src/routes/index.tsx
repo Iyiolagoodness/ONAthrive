@@ -25,13 +25,13 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "LogiLink — Move Anything Across Nigeria With Trusted Transporters" },
+      { title: "ONAthrive — Move Anything Across Nigeria With Trusted Transporters" },
       {
         name: "description",
         content:
           "Post a shipment, compare verified transporters, pay securely with escrow, and track deliveries in real time. Nigeria's trusted digital logistics marketplace.",
       },
-      { property: "og:title", content: "LogiLink — Nigeria's Trusted Logistics Marketplace" },
+      { property: "og:title", content: "ONAthrive — Nigeria's Trusted Logistics Marketplace" },
       {
         property: "og:description",
         content:
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "LogiLink — Trusted Logistics for Nigeria" },
+      { name: "twitter:title", content: "ONAthrive — Trusted Logistics for Nigeria" },
       {
         name: "twitter:description",
         content: "Post. Compare. Ship. Track. All in one marketplace.",
@@ -336,7 +336,7 @@ function WhyChooseUs() {
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          eyebrow="Why LogiLink"
+          eyebrow="Why ONAthrive"
           title="A logistics platform built like a fintech"
           desc="Every feature is designed around safety, transparency and speed."
         />
@@ -363,7 +363,7 @@ function Testimonials() {
     {
       name: "Chinelo E.",
       role: "Instagram vendor, Lagos",
-      quote: "I used to lose money to random drivers. On LogiLink, I compare 5 transporters in minutes and my customers get their orders on time.",
+      quote: "I used to lose money to random drivers. On ONAthrive, I compare 5 transporters in minutes and my customers get their orders on time.",
       rating: 5,
     },
     {
@@ -555,7 +555,7 @@ function FAQ() {
   const faqs = [
     {
       q: "How does escrow protect my payment?",
-      a: "When you pay for a shipment, LogiLink holds the money securely. The transporter only receives payment after you confirm delivery — or automatically after 72 hours if there are no disputes.",
+      a: "When you pay for a shipment, ONAthrive holds the money securely. The transporter only receives payment after you confirm delivery — or automatically after 72 hours if there are no disputes.",
     },
     {
       q: "How do you verify transporters?",
@@ -566,7 +566,7 @@ function FAQ() {
       a: "You can open a dispute directly from the app. Escrow is frozen while our support team investigates, and optional insurance covers full replacement value on qualifying shipments.",
     },
     {
-      q: "Can businesses integrate LogiLink with their store?",
+      q: "Can businesses integrate ONAthrive with their store?",
       a: "Yes — our Business and Enterprise plans include API access, so you can create shipments, receive tracking updates and manage returns straight from your e-commerce platform.",
     },
     {
@@ -620,7 +620,7 @@ function FinalCTA() {
                 Ready to move your goods safely?
               </h2>
               <p className="mt-4 max-w-lg text-primary-foreground/90">
-                Join thousands of shippers and drivers using LogiLink every day. It takes 60 seconds to get your first bid.
+                Join thousands of shippers and drivers using ONAthrive every day. It takes 60 seconds to get your first bid.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">

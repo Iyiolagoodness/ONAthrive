@@ -4,7 +4,7 @@ type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";
-  const stored = window.localStorage.getItem("logilink-theme") as Theme | null;
+  const stored = window.localStorage.getItem("onathrive-theme") as Theme | null;
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
@@ -23,7 +23,7 @@ export function useTheme() {
     if (!mounted) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("logilink-theme", theme);
+    window.localStorage.setItem("onathrive-theme", theme);
   }, [theme, mounted]);
 
   return {

@@ -8,8 +8,8 @@ import { ChevronLeft, ChevronRight, Loader2, AlertTriangle, MapPin, ShieldCheck 
 export const Route = createFileRoute("/_authenticated/_admin/admin/disputes")({
   head: () => ({
     meta: [
-      { title: "Disputes — Admin — LogiLink" },
-      { name: "description", content: "Resolve shipment disputes on LogiLink." },
+      { title: "Disputes — Admin — ONAthrive" },
+      { name: "description", content: "Resolve shipment disputes on ONAthrive." },
     ],
   }),
   component: AdminDisputes,

@@ -8,7 +8,7 @@ import { BadgeCheck, Clock, IdCard, Loader2, ScanFace, ShieldCheck, XCircle } fr
 export const Route = createFileRoute("/_authenticated/_admin/admin/kyc")({
   head: () => ({
     meta: [
-      { title: "KYC review — Admin — LogiLink" },
+      { title: "KYC review — Admin — ONAthrive" },
       { name: "description", content: "Review identity verification submissions from customers and transporters." },
     ],
   }),
