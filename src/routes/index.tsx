@@ -58,7 +58,7 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
       <Hero />
-      <TrustedBy />
+      {/* <TrustedBy /> */}
       <HowItWorks />
       <MarketplaceFeed />
       <WhyChooseUs />
@@ -196,25 +196,25 @@ function Stat({ value, label }: { value: string; label: string }) {
 
 /* -------------------- TRUSTED BY -------------------- */
 
-function TrustedBy() {
-  const names = ["JumiaLogistics", "GIG Freight", "Konga Xpress", "MTN Business", "Interswitch", "Flutterwave", "Dangote SCM"];
-  return (
-    <section className="border-y border-border bg-secondary/30 py-10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Trusted by leading businesses across Nigeria
-        </p>
-        <div className="mt-6 grid grid-cols-2 items-center gap-6 opacity-70 sm:grid-cols-4 lg:grid-cols-7">
-          {names.map((n) => (
-            <div key={n} className="text-center font-display text-sm font-semibold text-muted-foreground">
-              {n}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+// function TrustedBy() {
+//   const names = ["JumiaLogistics", "GIG Freight", "Konga Xpress", "MTN Business", "Interswitch", "Flutterwave", "Dangote SCM"];
+//   return (
+//     <section className="border-y border-border bg-secondary/30 py-10">
+//       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+//         <p className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+//           Trusted by leading businesses across Nigeria
+//         </p>
+//         <div className="mt-6 grid grid-cols-2 items-center gap-6 opacity-70 sm:grid-cols-4 lg:grid-cols-7">
+//           {names.map((n) => (
+//             <div key={n} className="text-center font-display text-sm font-semibold text-muted-foreground">
+//               {n}
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
 
 /* -------------------- HOW IT WORKS -------------------- */
 
