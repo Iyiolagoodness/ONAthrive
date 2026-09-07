@@ -106,9 +106,9 @@ function Dashboard() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Truck className="h-5 w-5" />
-            </div>
+            <span className="relative h-10 w-10 overflow-hidden rounded-xl bg-white" aria-hidden="true">
+              <img src="/logo.png" alt="" className="absolute -left-1 -top-1 h-16 w-16 max-w-none" />
+            </span>
             <span className="font-display text-xl font-bold tracking-tight">ONAthrive</span>
           </Link>
           <div className="flex items-center gap-3">

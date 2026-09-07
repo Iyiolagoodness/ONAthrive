@@ -51,14 +51,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-[var(--shadow-elegant)]">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 7h11l3 4h4v6h-2" />
-              <path d="M5 17h12" />
-              <circle cx="7" cy="17" r="2" />
-              <circle cx="17" cy="17" r="2" />
-            </svg>
-          </div>
+          <span className="relative h-10 w-10 overflow-hidden rounded-xl bg-white" aria-hidden="true">
+            <img src="/logo.png" alt="" className="absolute -left-1 -top-1 h-16 w-16 max-w-none" />
+          </span>
           <span className="font-display text-xl font-bold tracking-tight">ONAthrive</span>
         </Link>
 

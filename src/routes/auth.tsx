@@ -85,14 +85,9 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4 py-12">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-8 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 7h11l3 4h4v6h-2" />
-              <path d="M5 17h12" />
-              <circle cx="7" cy="17" r="2" />
-              <circle cx="17" cy="17" r="2" />
-            </svg>
-          </div>
+          <span className="relative h-14 w-14 overflow-hidden rounded-xl bg-white" aria-hidden="true">
+            <img src="/logo.png" alt="" className="absolute -left-1.5 -top-1 h-[84px] w-[84px] max-w-none" />
+          </span>
           <span className="font-display text-2xl font-bold tracking-tight">ONAthrive</span>
         </Link>
 
